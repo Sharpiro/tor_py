@@ -2,6 +2,7 @@ import socket
 import ssl
 import pprint
 
+
 class MySocket:
     def __init__(self, url, proxyUrl=None):
         self.url = url
@@ -17,7 +18,7 @@ class MySocket:
         host = host_and_port[0]
         port = 443 if len(host_and_port) == 1 else int(host_and_port[1])
         return (host, port)
-    
+
     def get_socket_no_proxy(self):
         host, port = self.get_host_and_port(self.url)
         plain_socket = socket.create_connection((host, port))
@@ -31,7 +32,7 @@ class MySocket:
         self.http_connect(plain_socket, self.url)
         tls_socket = self.get_tls_socket(plain_socket, host)
         return tls_socket
-    
+
     def get_tls_socket(self, socket, host):
         context = ssl.create_default_context()
         context.check_hostname = False
@@ -47,22 +48,34 @@ class MySocket:
         return
 
     def http_get(self):
-        request = bytearray("GET / HTTP/1.1\r\nHost: " + self.host + "\r\n\r\n", "utf8")
+        request = bytearray("GET / HTTP/1.1\r\nHost: " +
+                            self.host + "\r\n\r\n", "utf8")
         self.my_socket.send(request)
         initial_response = self.my_socket.recv(1024)
         print(initial_response)
         return
 
-external_url = "example.com:443"
+    def receive(self):
+        while True:
+            initial_response = self.my_socket.recv(1024)
+            print(list(initial_response))
+        return
+
+
+# external_url = "109.70.100.11"
+external_url = "128.31.0.61"
 inernal_url = ''
 proxy_url = ""
 
 no_proxy_socket = MySocket(external_url)
-no_proxy_socket.http_get()
+# fake_versions_cell = bytes([7]) + bytes([0, 0, 0, 0]) + bytes([0, 6]) + bytes([0, 1, 0, 3, 0, 5])
+fake_versions_cell = bytes([0, 0])+ bytes([7]) + bytes([0, 6]) + bytes([0, 1, 0, 3, 0, 5])
+# fake_create2_cell = bytes([1, 33, 248, 96]) + bytes([10]) + bytes([0, 2]) + bytes([0, 84]) + bytes(500)
+no_proxy_socket.my_socket.send(fake_versions_cell)
+no_proxy_socket.receive()
 
 # proxy_socket = MySocket(external_url, proxy_url)
 # proxy_socket.http_get()
-
 
 
 # headers_end = 0
