@@ -1,6 +1,5 @@
 from sockets.my_socket import SocketInfo
 
-
 class TorClient:
     socket_info: SocketInfo = None
 
@@ -8,7 +7,6 @@ class TorClient:
         self.socket_info = socket_info
 
     def send_versions(self):
-        print("doing tor stuff...")
         fake_versions_cell = bytes([0, 0]) + bytes([7]) + bytes([0, 2]) + bytes([0, 3])
         self.socket_info.socket.send(fake_versions_cell)
         # self.my_socket.socket.receive(100)
