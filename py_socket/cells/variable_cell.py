@@ -1,5 +1,5 @@
 from struct import unpack, pack
-from cells.cell_type import CellType
+from py_socket.cells.cell_type import CellType
 
 class VariableCell:
     CICRUIT_ID_SIZE = 2
@@ -35,3 +35,4 @@ def pack_variable_cell(variable_cell: VariableCell) -> bytes:
     headers_buffer = pack(f">{variable_cell.PACK_FORMAT}", variable_cell.circuit_id, variable_cell.command.value, variable_cell.payload_length)
     full_buffer = headers_buffer + variable_cell.payload
     return full_buffer
+    

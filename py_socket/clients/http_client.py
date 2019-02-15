@@ -1,6 +1,6 @@
 import socket
 import ssl
-from sockets.my_socket import SocketInfo, _get_host_and_port, _wrap_tls_socket, create_tls_socket
+from py_socket.sockets.my_socket import SocketInfo, _get_host_and_port, _wrap_tls_socket, create_tls_socket
 
 
 class HttpSocket(SocketInfo):
