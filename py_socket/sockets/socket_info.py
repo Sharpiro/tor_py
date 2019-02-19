@@ -10,7 +10,7 @@ class SocketInfo:
 
     def __init__(self, url: str, host: str, port: int, socket: socket_lib.socket):
         self.url = url
-        self.host=host
+        self.host = host
         self.port = port
         self.socket = socket
 
@@ -34,8 +34,8 @@ def create_tls_socket(url):
     host, port = _get_host_and_port(url)
     plain_socket = socket_lib.create_connection((host, port))
     tls_socket = _wrap_tls_socket(plain_socket, host)
-    my_socket = SocketInfo(url, host, port, tls_socket)
-    return my_socket
+    socket_info = SocketInfo(url, host, port, tls_socket)
+    return socket_info
 
 
 # headers_end = 0

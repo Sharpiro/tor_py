@@ -1,2 +1,1 @@
-from sockets.tor_client import TorClient
-from sockets.my_socket import SocketInfo
+from py_socket.sockets.socket_info import SocketInfo, create_tls_socket
