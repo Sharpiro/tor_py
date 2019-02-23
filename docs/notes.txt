@@ -1,0 +1,47 @@
+not using fast
+CELL_CREATE2
+ONION_HANDSHAKE_TYPE_NTOR
+handshake length = 84
+max payload size = 509
+
+created2 cell (fixed length)
+    circ_id: 4 bytes
+    command: 1 bytes
+    payload: 88 bytes
+
+
+/** State for an OR connection: We're done with our SSL handshake, but we
+ * haven't yet negotiated link protocol versions, done a V3 handshake, and
+ * sent a netinfo cell. */
+#define OR_CONN_STATE_OR_HANDSHAKING_V3 7
+
+negotiated link protocol version 5
+
+using "in-protocol"
+versions -> Certs -> auth_challenge -> netinfo
+
+client sends VERSIONS
+router sends VERSIONS
+router sends CERTS
+router sends AUTH_CHALLENGE
+router sends NETINFO
+client optionally sends CERTS
+client optionally sends AUTHENTICATE
+client sends NETINFO
+
+
+versions cell (variable length)
+    circ_id: 2/4 bytes
+    command: 1 bytes
+    payload_len: 2 bytes
+    payload: payload_len(6) bytes
+
+
+connection.c: 4314
+    writing to buffer
+connection_or.c: 2334
+    write variable length cell (versions)
+channeltls.c: 1435
+    process versions cell
+
+Hello, can anyone tell me what the "OTHERADDR" ip address found in the NETINFO cell is used for?  The docs say it may help an initiator to learn which address their connections may be originating from.  But I have no idea what that would mean.

@@ -13,7 +13,7 @@ external_url = "128.31.0.61"
 
 socket_info = create_tls_socket(external_url)
 tor_client = TorClient(socket_info)
-tor_client.send_versions()
+tor_client.initialize()
 
 # # fake_versions_cell = bytes([7]) + bytes([0, 0, 0, 0]) + bytes([0, 6]) + bytes([0, 1, 0, 3, 0, 5])
 # fake_create2_cell = bytes([1, 33, 248, 96]) + bytes([10]) + bytes([0, 2]) + bytes([0, 84]) + bytes(500)

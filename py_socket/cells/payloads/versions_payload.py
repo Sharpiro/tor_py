@@ -12,7 +12,7 @@ class VersionsPayload:
         return "(versions: {0})".format(self.versions)
 
 
-def unpack_versions_payload(buffer: bytes) -> (VersionsPayload, int):
+def unpack_versions_payload(buffer: bytes) -> VersionsPayload:
     versions_list_length = int((len(buffer) / VersionsPayload.VERSION_SIZE))
     versions_list = list(unpack('>' + 'H' * versions_list_length, buffer))
     versions_payload = VersionsPayload(versions_list)
