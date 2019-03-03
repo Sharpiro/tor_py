@@ -4,7 +4,7 @@ from py_socket.cells import (
     VersionsPayload, pack_versions_payload, VariableCell,
     CellType, pack_variable_cell, unpack_variable_cell,
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
-    pack_net_info_payload, NetInfoPayload, Cell, pack_cell
+    pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload
 )
 
 
@@ -47,7 +47,8 @@ class TorClient:
         # print(self._buffer[:20])
 
     def recv_certs(self):
-        _, bytes_consumed = unpack_variable_cell(self._buffer)
+        variable_cell, bytes_consumed = unpack_variable_cell(self._buffer)
+        unpack_certs_payload(variable_cell.payload)
         self._buffer = self._buffer[bytes_consumed:]
 
     def recv_auth_challenge(self):
@@ -78,7 +79,7 @@ class TorClient:
         self.socket_info.socket.send(cell_buffer)
         self._buffer = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
         temp = list(self._buffer)
-        pass
+        return temp
 
 
 '''
