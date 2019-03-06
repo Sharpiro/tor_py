@@ -1,9 +1,10 @@
 from struct import unpack, pack
+from py_socket.cells.payloads.cert_type import CertType
 
 
 class Cert:
 
-    def __init__(self, cert_type: int, certificate: bytes):
+    def __init__(self, cert_type: CertType, certificate: bytes):
         self.cert_type = cert_type
         self.cert_size = len(certificate)
         self.cert = certificate
@@ -28,7 +29,9 @@ def unpack_certs_payload(buffer: bytes) -> CertsPayload:
 
     certs_payload = CertsPayload()
     for _ in range(number_of_certs):
-        cert_type, cert_length = unpack(">BH", buffer[:CertsPayload.CERT_HEADER_SIZE])
+        cert_type_number, cert_length = unpack(
+            ">BH", buffer[:CertsPayload.CERT_HEADER_SIZE])
+        cert_type = CertType(cert_type_number)
         buffer = buffer[CertsPayload.CERT_HEADER_SIZE:]
         cert = unpack(f">{cert_length}s", buffer[:cert_length])[0]
         buffer = buffer[cert_length:]

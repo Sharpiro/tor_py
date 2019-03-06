@@ -33,6 +33,7 @@
 * requirements
   * identity key digest
     * rsa or ed25519 signed by rsa
+    * 1024 bits?
     * 4.4.2 check out?
   * ntor onion key
     * curve25519
