@@ -36,7 +36,8 @@ def unpack_certs_payload(buffer: bytes) -> CertsPayload:
         cert = unpack(f">{cert_length}s", buffer[:cert_length])[0]
         buffer = buffer[cert_length:]
         certs_payload.certs.append(Cert(cert_type, cert))
-    pass
+        
+    return certs_payload
 
 
 # def pack_certs_payload(certs_payload: VersionsPayload) -> bytes:

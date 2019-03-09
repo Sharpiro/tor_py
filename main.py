@@ -9,17 +9,16 @@ import base64
 import hashlib
 # # external_url = "109.70.100.11"
 external_url = "128.31.0.61"
-# expected_fingerprint = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
+
 # ntor_onion_key = base64.b64decode("7jxzpYYdzuvsWgyGQIjfaIcdyw2nLliAdDVsAxVm3Bw=")
 # master_key_ed25519 = base64.b64decode("OJi2i6K6x9JhhyU2sD5iiamiK/1hLMzGc7w69HHVQQM=")
-# server_identity_digest = hashlib.sha256(master_key_ed25519).digest()
-# print(list(expected_fingerprint))
-# # fake_public_key = master_key_ed25519
-# handshake_data = server_identity_digest + ntor_onion_key + fake_public_key
-# print(list(ntor_onion_key))
-# print(list(master_key_ed25519))
-# print(list(server_identity_digest))
-# print(list(handshake_data))
+# rsa_signing_key = base64.b64decode("MIGJAoGBAMOi1FV0CdvtCBXiokmeYjyzs9aeSj3FOVbii64F8kE/+sshO2TbMv1PTjNnC6FeZ0v0AW6i35tWjFdyRzKdC3XPk1bS1A5C5xZupC+/jsPRB3w0GITWalSWLvbNQwuix9v4hS4wKySdypx7JU0KSFt1pbZHOf7OsbnO047w4EApAgMBAAE=")
+# expected_server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
+# actual_server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
+# print(len(rsa_signing_key)*8)
+# print(list(expected_server_identity_digest))
+# print(list(actual_server_identity_digest))
+# assert expected_server_identity_digest == actual_server_identity_digest
 
 socket_info = create_tls_socket(external_url)
 tor_client = TorClient(socket_info)

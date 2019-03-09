@@ -50,7 +50,9 @@ class TorClient:
 
     def recv_certs(self):
         variable_cell, bytes_consumed = unpack_variable_cell(self._buffer)
-        unpack_certs_payload(variable_cell.payload)
+        certs_payload = unpack_certs_payload(variable_cell.payload)
+        _ = certs_payload
+        temp = base64.b64encode(certs_payload.certs[2].cert)
         self._buffer = self._buffer[bytes_consumed:]
 
     def recv_auth_challenge(self):
@@ -76,11 +78,12 @@ class TorClient:
 
     def send_create(self):
         ntor_onion_key = base64.b64decode("7jxzpYYdzuvsWgyGQIjfaIcdyw2nLliAdDVsAxVm3Bw=")
-        # master_key_ed25519 = base64.b64decode("OJi2i6K6x9JhhyU2sD5iiamiK/1hLMzGc7w69HHVQQM=")
-        # server_identity_digest = hashlib.sha1(master_key_ed25519).digest()
-        server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
+        rsa_signing_key = base64.b64decode("MIGJAoGBAMOi1FV0CdvtCBXiokmeYjyzs9aeSj3FOVbii64F8kE/+sshO2TbMv1PTjNnC6FeZ0v0AW6i35tWjFdyRzKdC3XPk1bS1A5C5xZupC+/jsPRB3w0GITWalSWLvbNQwuix9v4hS4wKySdypx7JU0KSFt1pbZHOf7OsbnO047w4EApAgMBAAE=")
+        expected_server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
+        # actual_server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
+        # assert expected_server_identity_digest == actual_server_identity_digest
         fake_public_key = ntor_onion_key
-        handshake_data = server_identity_digest + ntor_onion_key + fake_public_key
+        handshake_data = expected_server_identity_digest + ntor_onion_key + fake_public_key
         handshake_data_length = len(handshake_data)
         # print(list(ntor_onion_key))
         # print(list(master_key_ed25519))
@@ -89,10 +92,12 @@ class TorClient:
         payload_buffer = bytes([0, 2, 0, handshake_data_length]) + handshake_data
         cell = Cell(60000, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
-        temp_payload = list(cell_buffer)
         self.socket_info.socket.send(cell_buffer)
         self._buffer = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
         temp = list(self._buffer)
+        server_public_key = list(self._buffer[5:32 + 5])
+        self._buffer = self._buffer[37:37+32]
+        server_auth = list(self._buffer)
         return temp
 
 

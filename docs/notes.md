@@ -31,12 +31,14 @@
 ### the ntor handshake
 
 * requirements
-  * identity key digest
-    * rsa or ed25519 signed by rsa
-    * 1024 bits?
-    * 4.4.2 check out?
+  * identity key digest (fingerprint)
+    * sha 1 hash of one of the rsa public keys (2nd one in my test)
+    * the signing key
+    * 1024 bits public key?
+    * 1120 bits total
   * ntor onion key
     * curve25519
+    * 32 bytes
 
 ## useful source locations
 
@@ -46,6 +48,22 @@
   * write variable length cell (versions)
 * channeltls.c: 1435
   * process versions cell
+
+## Directories
+
+### Directory Links
+
+* <http://128.31.0.61/tor/server/authority.z>
+* <http://128.31.0.61/tor/server/all.z>
+
+### Feedback
+
+#### tor-spec
+
+* It was very difficult to figure out where to find the Server Identity and how to figure out its "digest"
+* 5.1.2 EXTEND AND EXTENDED cells
+  * Ed25519 identity says it is a 32 byte fingerprint.  However the explanation a few paragraphs down says that it is the Ed25519 identity key of the target node.
+* 5.5.1 has redundant paragraph
 
 ## what is otheraddr in netinfo cell
 
