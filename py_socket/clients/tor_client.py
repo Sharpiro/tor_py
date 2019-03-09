@@ -6,6 +6,8 @@ from py_socket.cells import (
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
     pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload
 )
+import base64
+import hashlib
 
 
 class TorClient:
@@ -73,9 +75,21 @@ class TorClient:
         pass
 
     def send_create(self):
-        create_payload_buffer = bytes([0, 2, 0, 5]) + bytes(5)
-        cell = Cell(60000, CellType.create2, create_payload_buffer)
+        ntor_onion_key = base64.b64decode("7jxzpYYdzuvsWgyGQIjfaIcdyw2nLliAdDVsAxVm3Bw=")
+        # master_key_ed25519 = base64.b64decode("OJi2i6K6x9JhhyU2sD5iiamiK/1hLMzGc7w69HHVQQM=")
+        # server_identity_digest = hashlib.sha1(master_key_ed25519).digest()
+        server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
+        fake_public_key = ntor_onion_key
+        handshake_data = server_identity_digest + ntor_onion_key + fake_public_key
+        handshake_data_length = len(handshake_data)
+        # print(list(ntor_onion_key))
+        # print(list(master_key_ed25519))
+        # print(list(server_identity_digest))
+        # print(list(handshake_data))
+        payload_buffer = bytes([0, 2, 0, handshake_data_length]) + handshake_data
+        cell = Cell(60000, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
+        temp_payload = list(cell_buffer)
         self.socket_info.socket.send(cell_buffer)
         self._buffer = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
         temp = list(self._buffer)
