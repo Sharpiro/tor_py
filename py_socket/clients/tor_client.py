@@ -8,6 +8,7 @@ from py_socket.cells import (
 )
 import base64
 import hashlib
+from nacl.public import PrivateKey, Box, PublicKey
 
 
 class TorClient:
@@ -82,8 +83,10 @@ class TorClient:
         expected_server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
         # actual_server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
         # assert expected_server_identity_digest == actual_server_identity_digest
-        fake_public_key = ntor_onion_key
-        handshake_data = expected_server_identity_digest + ntor_onion_key + fake_public_key
+
+        my_private_key_object = PrivateKey.generate()
+        my_public_key = my_private_key_object.public_key._public_key
+        handshake_data = expected_server_identity_digest + ntor_onion_key + my_public_key
         handshake_data_length = len(handshake_data)
         # print(list(ntor_onion_key))
         # print(list(master_key_ed25519))
@@ -95,9 +98,12 @@ class TorClient:
         self.socket_info.socket.send(cell_buffer)
         self._buffer = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
         temp = list(self._buffer)
-        server_public_key = list(self._buffer[5:32 + 5])
+        server_public_key = self._buffer[5:32 + 5]
         self._buffer = self._buffer[37:37+32]
         server_auth = list(self._buffer)
+
+        server_public_key_object = PublicKey(server_public_key)
+        shared_key = Box(my_private_key_object, server_public_key_object).shared_key()
         return temp
 
 

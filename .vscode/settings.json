@@ -11,5 +11,6 @@
     ],
     "python.unitTest.pyTestEnabled": false,
     "python.unitTest.nosetestsEnabled": false,
-    "python.unitTest.unittestEnabled": true
+    "python.unitTest.unittestEnabled": true,
+    "python.pythonPath": "/home/sharpiro/.local/share/virtualenvs/tor_py-hBlCRA6a/bin/python"
 }
