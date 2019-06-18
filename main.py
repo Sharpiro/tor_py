@@ -9,6 +9,7 @@ import base64
 import hashlib
 # # external_url = "109.70.100.11"
 external_url = "128.31.0.61"
+import curve25519
 
 # ntor_onion_key = base64.b64decode("7jxzpYYdzuvsWgyGQIjfaIcdyw2nLliAdDVsAxVm3Bw=")
 # master_key_ed25519 = base64.b64decode("OJi2i6K6x9JhhyU2sD5iiamiK/1hLMzGc7w69HHVQQM=")
@@ -20,6 +21,10 @@ external_url = "128.31.0.61"
 # print(list(actual_server_identity_digest))
 # assert expected_server_identity_digest == actual_server_identity_digest
 
-socket_info = create_tls_socket(external_url)
-tor_client = TorClient(socket_info)
-tor_client.initialize()
+# socket_info = create_tls_socket(external_url)
+# tor_client = TorClient(socket_info)
+# tor_client.initialize()
+
+# print(bytes([0])+bytes([1]))
+
+# print(curve25519.)

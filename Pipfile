@@ -10,6 +10,7 @@ rope = "*"
 
 [packages]
 pynacl = "*"
+curve25519 = "*"
 
 [requires]
 python_version = "3.7"

@@ -2,15 +2,15 @@
     "files.exclude": {
         "**/__pycache__": true
     },
-    "python.unitTest.unittestArgs": [
+    "python.testing.unittestArgs": [
         "-v",
         "-s",
         "tests",
         "-p",
         "*test*.py"
     ],
-    "python.unitTest.pyTestEnabled": false,
-    "python.unitTest.nosetestsEnabled": false,
-    "python.unitTest.unittestEnabled": true,
+    "python.testing.pyTestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.unittestEnabled": true,
     "python.pythonPath": "/home/sharpiro/.local/share/virtualenvs/tor_py-hBlCRA6a/bin/python"
 }
