@@ -11,6 +11,7 @@ rope = "*"
 [packages]
 pynacl = "*"
 curve25519 = "*"
+eccsnacks = "*"
 
 [requires]
 python_version = "3.7"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "734711111797eb2859d2ad6b11d6ea6a23717f7bfc891012a3402a1f801dc827"
+            "sha256": "7f0c48afe1053e9f38d70dc9ff3c1cc9e9a1a62796b99953a985750fe052c73c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -55,6 +55,13 @@
             ],
             "index": "pypi",
             "version": "==0.1"
+        },
+        "eccsnacks": {
+            "hashes": [
+                "sha256:d6bbe85c079c3938e832998e9bf98110faafcdd4614aacf7a97305ebf338a308"
+            ],
+            "index": "pypi",
+            "version": "==1.0.1"
         },
         "pycparser": {
             "hashes": [

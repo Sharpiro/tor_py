@@ -63,6 +63,7 @@ class TorClient:
 
     def recv_net_info(self):
         variable_cell, bytes_consumed = unpack_cell(self._buffer)
+        temp = list(self._buffer)
         self._buffer = self._buffer[bytes_consumed:]
         _ = unpack_net_info_payload(variable_cell.payload)
 
@@ -79,26 +80,27 @@ class TorClient:
         pass
 
     def send_create(self):
-        proto_id = bytes("ntor-curve25519-sha256-1", "utf8")
-        t_mac = proto_id + bytes(":mac", "utf8")
-        t_key = proto_id + bytes(":key_extract", "utf8")
-        t_verify = proto_id + bytes(":verify", "utf8")
-        ntor_onion_key = base64.b64decode("7jxzpYYdzuvsWgyGQIjfaIcdyw2nLliAdDVsAxVm3Bw=")
+        proto_id = b"ntor-curve25519-sha256-1"
+        t_mac = proto_id + b":mac"
+        t_key = proto_id + b":key_extract"
+        t_verify = proto_id + b":verify"
+        ntor_onion_key = base64.b64decode("5MwtdhPC8TJhO4LimkeubrfjkRlnw6Cs4pXX1pnEKV0=")
         rsa_signing_key = base64.b64decode(
             "MIGJAoGBAMOi1FV0CdvtCBXiokmeYjyzs9aeSj3FOVbii64F8kE/+sshO2TbMv1PTjNnC6FeZ0v0AW6i35tWjFdyRzKdC3XPk1bS1A5C5xZupC+/jsPRB3w0GITWalSWLvbNQwuix9v4hS4wKySdypx7JU0KSFt1pbZHOf7OsbnO047w4EApAgMBAAE=")
-        expected_server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
+        server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
         # actual_server_identity_digest = bytes.fromhex("9715C81BA8C5B0C698882035F75C67D6D643DBE3")
         # assert expected_server_identity_digest == actual_server_identity_digest
 
         eph_my_private_key_object = PrivateKey.generate()
         eph_my_public_key = eph_my_private_key_object.public_key._public_key
-        handshake_data = expected_server_identity_digest + ntor_onion_key + eph_my_public_key
+        handshake_data = server_identity_digest + ntor_onion_key + eph_my_public_key
         handshake_data_length = len(handshake_data)
         # print(list(ntor_onion_key))
         # print(list(master_key_ed25519))
         # print(list(server_identity_digest))
         # print(list(handshake_data))
         payload_buffer = bytes([0, 2, 0, handshake_data_length]) + handshake_data
+        # payload_buffer = bytes([0, handshake_data_length]) + handshake_data
         cell = Cell(60000, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
         self.socket_info.socket.send(cell_buffer)
@@ -112,13 +114,13 @@ class TorClient:
         eph_shared_key = Box(eph_my_private_key_object, PublicKey(eph_server_public_key)).shared_key()
         long_shared_key = Box(eph_my_private_key_object, PublicKey(ntor_onion_key)).shared_key()
 
-        secret_input = (eph_shared_key + long_shared_key + expected_server_identity_digest + ntor_onion_key +
+        secret_input = (eph_shared_key + long_shared_key + server_identity_digest + ntor_onion_key +
                         eph_my_public_key + eph_server_public_key + proto_id)
 
         key_seed = self.hmacSha(secret_input, t_key)
         verify = self.hmacSha(secret_input, t_verify)
-        auth_input = (verify + expected_server_identity_digest + ntor_onion_key + eph_server_public_key
-                      + eph_my_public_key + proto_id + bytes("Server", "utf8"))
+        auth_input = (verify + server_identity_digest + ntor_onion_key + eph_server_public_key
+                      + eph_my_public_key + proto_id + b"Server")
 
         expected_auth = list(self.hmacSha(auth_input, t_mac))
 

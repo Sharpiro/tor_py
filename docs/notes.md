@@ -33,7 +33,7 @@
 * requirements
   * identity key digest (fingerprint)
     * sha 1 hash of one of the rsa public keys (2nd one in my test)
-    * the signing key
+    * the signing key!
     * 1024 bits public key?
     * 1120 bits total
   * ntor onion key
@@ -54,8 +54,8 @@
 
 ### Directory Links
 
-* <http://128.31.0.61/tor/server/authority.z>
-* <http://128.31.0.61/tor/server/all.z>
+* <http://128.31.0.61/tor/server/authority>
+* <http://128.31.0.61/tor/server/all>
 
 ### Feedback
 
