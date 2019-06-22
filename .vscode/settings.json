@@ -12,5 +12,16 @@
     "python.testing.pyTestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.unittestEnabled": true,
-    "python.pythonPath": "/home/sharpiro/.local/share/virtualenvs/tor_py-hBlCRA6a/bin/python"
+    "python.pythonPath": "/home/sharpiro/.local/share/virtualenvs/tor_py-hBlCRA6a/bin/python",
+    "cSpell.words": [
+        "NETINFO",
+        "channeltls",
+        "nacl",
+        "ntor",
+        "otheraddr",
+        "proto",
+        "scalarmult",
+        "struct",
+        "uint"
+    ]
 }

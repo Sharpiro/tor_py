@@ -83,28 +83,12 @@ def X25519(k, u):
 
     return (x_2 * pow(z_2, P - 2, P)) % P
 
-# def unpack_version2(s):
-#     t = sum(ord(s[i]) << (8 * i) for i in range(31))
-#     t += ((ord(s[31]) & 0x7f) << 248)
-#     return t
-
-
-# def unpack_version3(s):
-#     t = sum(s[i] << (8 * i) for i in range(31))
-#     t += ((s[31] & 0x7f) << 248)
-#     return t
-
-# # Equivalent to RFC7748 decodeUCoordinate followed by decodeLittleEndian
-# def unpack(s):
-#     if len(s) != 32:
-#         raise ValueError('Invalid Curve25519 scalar (len=%d)' % len(s))
-#     return unpack_version2(s) if MajorVersion < 3 else unpack_version3(s)
 
 # Equivalent to RFC7748 decodeUCoordinate followed by decodeLittleEndian
 def unpack(s):
     if len(s) != 32:
         raise ValueError('Invalid Curve25519 scalar (len=%d)' % len(s))
-    
+
     if MajorVersion < 3:
         t = sum(ord(s[i]) << (8 * i) for i in range(31))
         t += ((ord(s[31]) & 0x7f) << 248)
@@ -112,20 +96,10 @@ def unpack(s):
     else:
         t = sum(s[i] << (8 * i) for i in range(31))
         t += ((s[31] & 0x7f) << 248)
-
     return t
 
 
-# def pack_version2(n):
-#     return ''.join([chr((n >> (8 * i)) & 255) for i in range(32)])
-
-
-# def pack_version3(n):
-#     return bytes([(n >> (8 * i)) & 255 for i in range(32)])
-
-
 def pack(n):
-    # return pack_version2(n) if MajorVersion < 3 else pack_version3(n)
     if MajorVersion < 3:
         return ''.join([chr((n >> (8 * i)) & 255) for i in range(32)])
     else:

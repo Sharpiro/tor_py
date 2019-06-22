@@ -3,11 +3,11 @@ from py_socket.cells.cell_type import CellType
 
 
 class Cell:
-    CICRUIT_ID_SIZE = 2
+    CIRCUIT_ID_SIZE = 2
     COMMAND_SIZE = 1
-    HEADER_SIZE = CICRUIT_ID_SIZE + COMMAND_SIZE
+    HEADER_SIZE = CIRCUIT_ID_SIZE + COMMAND_SIZE
     PAYLOAD_LENGTH = 509
-    PACK_FORMAT = "HB" if CICRUIT_ID_SIZE == 2 else "LB"
+    PACK_FORMAT = "HB" if CIRCUIT_ID_SIZE == 2 else "LB"
 
     circuit_id: int = 0
     command: CellType = 0

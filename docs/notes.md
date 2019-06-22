@@ -65,7 +65,10 @@
 * 5.1.2 EXTEND AND EXTENDED cells
   * Ed25519 identity says it is a 32 byte fingerprint.  However the explanation a few paragraphs down says that it is the Ed25519 identity key of the target node.
 * 5.5.1 has redundant paragraph
+* some libraries like nacl compute shared secret differently
+* when sending a created2 cell, if an invalid ntor onion key is sent, the server doesn't send back an error, only after the auth is computed would you know there is an issue
 
-## what is otheraddr in netinfo cell
+## Questions
 
-Hello, can anyone tell me what the "OTHERADDR" ip address found in the NETINFO cell is used for?  The docs say it may help an initiator to learn which address their connections may be originating from.  But I have no idea what that would mean.
+* what is otheraddr in netinfo cell
+  * Hello, can anyone tell me what the "OTHERADDR" ip address found in the NETINFO cell is used for?  The docs say it may help an initiator to learn which address their connections may be originating from.  But I have no idea what that would mean.
