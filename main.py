@@ -11,6 +11,8 @@
 # import binascii
 # from temp import smult_curve25519, smult_curve25519_base
 # # external_url = "109.70.100.11"
+from curve25519 import scalarmult, scalarmult_base
+import secrets
 external_url = "128.31.0.61"
 # import curve25519
 
@@ -82,21 +84,23 @@ external_url = "128.31.0.61"
 
 # print("sha: ", sha)
 
-from os import urandom
-from temp2 import scalarmult, scalarmult_base
 
 # Private keys in Curve25519 can be any 32-byte string.
-# a = urandom(32)
-a = bytes(bytearray.fromhex("59d8ccde721ece1f1bdf3dbc6f4d0ef490e276188ccb0d139f0fca43db1132ff"))
-a_pub = bytes([ord(i) for i in scalarmult_base(a)])
+# a = secrets.token_bytes(32)
+a = bytes.fromhex("59d8ccde721ece1f1bdf3dbc6f4d0ef490e276188ccb0d139f0fca43db1132ff")
+a_pub = scalarmult_base(a)
 
-# b = urandom(32)
-b = bytes(bytearray.fromhex("05933785fb85d99dc155fcf669360787a2965089d3e33e38874ffc9fddbb5f4a"))
-b_pub = bytes([ord(i) for i in scalarmult_base(b)])
+# b = secrets.token_bytes(32)
+b = bytes.fromhex("05933785fb85d99dc155fcf669360787a2965089d3e33e38874ffc9fddbb5f4a")
+b_pub = scalarmult_base(b)
 
 # perform Diffie-Hellman computation for alice and bob
-k_ab = bytes([ord(i) for i in scalarmult(a, b_pub)]).hex()
-k_ba = bytes([ord(i) for i in scalarmult(b, a_pub)]).hex()
+# k_ab = bytes([ord(i) for i in scalarmult(a, b_pub)]).hex()
+# k_ba = bytes([ord(i) for i in scalarmult(b, a_pub)]).hex()
+k_ab = scalarmult(a, b_pub)
+k_ba = scalarmult(b, a_pub)
 
-# keys should be the same
+print(a_pub.hex())
+print(b_pub.hex())
+print(k_ab.hex())
 assert k_ab == k_ba
