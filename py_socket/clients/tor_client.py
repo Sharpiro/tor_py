@@ -11,6 +11,8 @@ import hashlib
 import hmac
 import secrets
 from curve25519 import scalarmult, scalarmult_base
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
 
 
 class TorClient:
@@ -33,7 +35,7 @@ class TorClient:
         self.recv_net_info()
         create_info = self.send_create2()
         key_seed = self.recv_created2(create_info)
-        self.compute_keys(key_seed)
+        keys = self.compute_keys(key_seed)
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -133,8 +135,33 @@ class TorClient:
         return key_seed
 
     def compute_keys(self, key_seed):
+        N = 72
+        HASH_LEN = 20
+        KEY_LEN = 16
+
         m_expand = self.PROTO_ID + b":key_expand"
-        pass
+        k_1 = self.hmacSha(m_expand + bytes([1]), key_seed)
+        k_2 = self.hmacSha(k_1 + m_expand + bytes([2]), key_seed)
+        k_3 = self.hmacSha(k_2 + m_expand + bytes([3]), key_seed)
+        all_bytes = k_1 + k_2 + k_3
+        digest_forward = all_bytes[:HASH_LEN]
+        digest_backward = all_bytes[HASH_LEN: HASH_LEN * 2]
+        key_forward = all_bytes[HASH_LEN*2: HASH_LEN*2 + KEY_LEN]
+        key_backward = all_bytes[HASH_LEN*2 + KEY_LEN: HASH_LEN*2 + KEY_LEN*2]
+
+        assert len(digest_forward)+len(digest_backward)+len(key_forward)+len(key_backward) == N
+
+        return digest_forward, digest_backward, key_forward, key_backward
+
+    def encrypt(self, key, plaintext):
+        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
+        ciphertext = cipher.encrypt(plaintext)
+        return ciphertext
+
+    def decrypt(self, key, ciphertext):
+        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
+        plaintext = cipher.decrypt(ciphertext)
+        return plaintext
 
     def hmacSha(self, message, key):
         return hmac.new(key, message, hashlib.sha256).digest()

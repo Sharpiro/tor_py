@@ -42,6 +42,10 @@
 
 ## useful source locations
 
+* relay.c: 548
+  * create relay cell
+* circuitbuild.c: 939
+  * backbone function for building circuits 
 * connection.c: 4314
   * writing to buffer
 * connection_or.c: 2334
@@ -67,6 +71,9 @@
 * 5.5.1 has redundant paragraph
 * some libraries like nacl compute shared secret differently
 * when sending a created2 cell, if an invalid ntor onion key is sent, the server doesn't send back an error, only after the auth is computed would you know there is an issue
+* 0.3. Ciphers
+  * What does it mean "We also require AES256" right after saying "we use 128-bit AES in counter mode"
+  * May want to clarify that you use 256 bit keys instead
 
 ## Questions
 

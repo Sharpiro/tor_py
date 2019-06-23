@@ -9,6 +9,7 @@ autopep8 = "*"
 rope = "*"
 
 [packages]
+pycrypto = "*"
 
 [requires]
 python_version = "3.7"
