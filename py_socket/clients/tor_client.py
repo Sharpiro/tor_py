@@ -4,7 +4,8 @@ from py_socket.cells import (
     VersionsPayload, pack_versions_payload, VariableCell,
     CellType, pack_variable_cell, unpack_variable_cell,
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
-    pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload
+    pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload,
+    RelayPayload, unpack_relay_payload, pack_relay_payload
 )
 import base64
 import hashlib
@@ -36,6 +37,7 @@ class TorClient:
         create_info = self.send_create2()
         key_seed = self.recv_created2(create_info)
         keys = self.compute_keys(key_seed)
+        self.relay(keys)
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -152,6 +154,17 @@ class TorClient:
         assert len(digest_forward)+len(digest_backward)+len(key_forward)+len(key_backward) == N
 
         return digest_forward, digest_backward, key_forward, key_backward
+
+    def relay(self, keys):
+        circuit_id = 60_000
+        stream_id = 25_000
+        duck_go_ip = b"107.20.240.232:80"
+        flags = bytes([0, 0, 0, 0])
+        data = bytes()
+        relay_payload = RelayPayload(1, stream_id=stream_id, data=data)
+        payload_buffer = pack_relay_payload(relay_payload)
+        cell = Cell(circuit_id, CellType.relay, payload_buffer)
+        _cell_buffer = pack_cell(cell)
 
     def encrypt(self, key, plaintext):
         cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))

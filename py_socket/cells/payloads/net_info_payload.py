@@ -33,7 +33,6 @@ class NetInfoPayload:
 
     def __repr__(self):
         return ("(timestamp: {0}, other_address_type: {1}, other_address_length: {2})"
-                "derp"
                 ).format(self.timestamp, self.other_address_type, self.other_address)
 
 

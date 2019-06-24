@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class CellType(Enum):
+    relay = 3
     destroy = 4
     versions = 7
     net_info = 8

@@ -15,6 +15,7 @@
     "python.pythonPath": "/home/sharpiro/.local/share/virtualenvs/tor_py-hBlCRA6a/bin/python",
     "cSpell.words": [
         "NETINFO",
+        "NOSUCHSERVICE",
         "channeltls",
         "nacl",
         "ntor",
