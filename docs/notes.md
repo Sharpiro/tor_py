@@ -42,10 +42,14 @@
 
 ## useful source locations
 
+* relay_crypto.c: 185
+  * relay_encrypt_cell_outbound
+* relay_crypto.c: 111
+  * relay decrypt cell
 * relay.c: 548
   * create relay cell
 * circuitbuild.c: 939
-  * backbone function for building circuits 
+  * backbone function for building circuits
 * connection.c: 4314
   * writing to buffer
 * connection_or.c: 2334
@@ -74,8 +78,26 @@
 * 0.3. Ciphers
   * What does it mean "We also require AES256" right after saying "we use 128-bit AES in counter mode"
   * May want to clarify that you use 256 bit keys instead
+  * Though that actually doesn't make since since AES 256 requires 32 byte keys, and Tor uses 16 bytes keys for stream cipher
 
 ## Questions
 
 * what is otheraddr in netinfo cell
   * Hello, can anyone tell me what the "OTHERADDR" ip address found in the NETINFO cell is used for?  The docs say it may help an initiator to learn which address their connections may be originating from.  But I have no idea what that would mean.
+
+## Debug
+
+* relay debug
+  * what are df/db for?
+  * is hash input incorrect
+  * aes counter param wrong
+  * is sha 1 the correct hash
+    * checked in tor code, seems to be
+  * are aes key sizes accurate
+    * seem like they have to be 16 bytes, despite confusing wording
+  * are we encrypting the correct portion
+    * should be cell payload - 509 bytes
+  * is key derivation wrong
+    * tested seems fine
+  * are we using an exit node
+    * yes

@@ -88,9 +88,9 @@ class TorClient:
         pass
 
     def send_create2(self):
-        ntor_onion_key = base64.b64decode("f+XpLjonwta50/OeD71k0oFenh2D+rL/P0f2CxhsbFo=")
+        ntor_onion_key = base64.b64decode("T0Bm2KDsXTmZjGOigv+mm2BA3EIZjR/zbt30REtukS0=")
         rsa_signing_key = base64.b64decode(
-            "MIGJAoGBAMOi1FV0CdvtCBXiokmeYjyzs9aeSj3FOVbii64F8kE/+sshO2TbMv1PTjNnC6FeZ0v0AW6i35tWjFdyRzKdC3XPk1bS1A5C5xZupC+/jsPRB3w0GITWalSWLvbNQwuix9v4hS4wKySdypx7JU0KSFt1pbZHOf7OsbnO047w4EApAgMBAAE=")
+            "MIGJAoGBAN0gq1nAJAbjM6k5FBz/GwFc0BO1wPaxrNM+jRAbg/+IbL37k5nfzc1TCum2zVWn51DDqeVjgNFyBGJ7VezS1bziUF2fWePIwnjAmzbCIC6BX8unOymeKpoeYiCxmAzZBLKWTYsm0WTaFTHmrk97qEQ3wakI8Y+ueXygcszH/WAVAgMBAAE=")
         server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
 
         eph_my_private_key = secrets.token_bytes(32)
@@ -125,7 +125,8 @@ class TorClient:
         secret_input = (eph_shared_key + long_shared_key + server_identity_digest + ntor_onion_key +
                         eph_my_public_key + eph_server_public_key + self.PROTO_ID)
 
-        key_seed = self.hmacSha(secret_input, t_key)
+        # key_seed = self.hmacSha(secret_input, t_key)
+        key_seed = self.outer_compute_keys(secret_input, t_key)
         verify = self.hmacSha(secret_input, t_verify)
         auth_input = (verify + server_identity_digest + ntor_onion_key + eph_server_public_key
                       + eph_my_public_key + self.PROTO_ID + b"Server")
@@ -134,6 +135,10 @@ class TorClient:
 
         assert server_auth == expected_auth
 
+        return key_seed
+
+    def outer_compute_keys(self, secret_input, t_key):
+        key_seed = self.hmacSha(secret_input, t_key)
         return key_seed
 
     def compute_keys(self, key_seed):
@@ -147,7 +152,7 @@ class TorClient:
         k_3 = self.hmacSha(k_2 + m_expand + bytes([3]), key_seed)
         all_bytes = k_1 + k_2 + k_3
         digest_forward = all_bytes[:HASH_LEN]
-        digest_backward = all_bytes[HASH_LEN: HASH_LEN * 2]
+        digest_backward = all_bytes[HASH_LEN: HASH_LEN*2]
         key_forward = all_bytes[HASH_LEN*2: HASH_LEN*2 + KEY_LEN]
         key_backward = all_bytes[HASH_LEN*2 + KEY_LEN: HASH_LEN*2 + KEY_LEN*2]
 
@@ -156,22 +161,40 @@ class TorClient:
         return digest_forward, digest_backward, key_forward, key_backward
 
     def relay(self, keys):
+        digest_forward, _, key_forward, _ = keys
         circuit_id = 60_000
         stream_id = 25_000
-        duck_go_ip = b"107.20.240.232:80"
-        flags = bytes([0, 0, 0, 0])
-        data = bytes()
-        relay_payload = RelayPayload(1, stream_id=stream_id, data=data)
-        payload_buffer = pack_relay_payload(relay_payload)
-        cell = Cell(circuit_id, CellType.relay, payload_buffer)
-        _cell_buffer = pack_cell(cell)
+        duck_go_ip = b"107.20.240.232:80\x00"
+        flags = bytes([0, 0, 0, 1])
+        # relay_data = duck_go_ip + flags
+        relay_data = duck_go_ip
+        relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+        sha1_hash = hashlib.sha1(digest_forward + relay_payload_buffer).digest()
+        # sha1_hash = hashlib.sha256(digest_forward + relay_payload_buffer).digest()
+        # hashlib.new()
+        relay_payload.digest = sha1_hash[:4]
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+        encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
+        cell = Cell(circuit_id, CellType.relay, encrypted_payload)
+        cell_buffer = pack_cell(cell)
+
+        self.socket_info.socket.send(cell_buffer)
+        debug_res = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
+        pass
 
     def encrypt(self, key, plaintext):
+        # if len(key) != 32:
+        #     raise ValueError("key must be 32 bytes")
+
         cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
         ciphertext = cipher.encrypt(plaintext)
         return ciphertext
 
     def decrypt(self, key, ciphertext):
+        # if len(key) != 32:
+        #     raise ValueError("key must be 32 bytes")
+
         cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
         plaintext = cipher.decrypt(ciphertext)
         return plaintext

@@ -17,6 +17,7 @@
         "NETINFO",
         "NOSUCHSERVICE",
         "channeltls",
+        "circuitbuild",
         "nacl",
         "ntor",
         "otheraddr",
