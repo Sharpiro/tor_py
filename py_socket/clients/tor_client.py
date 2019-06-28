@@ -165,14 +165,12 @@ class TorClient:
         circuit_id = 60_000
         stream_id = 25_000
         duck_go_ip = b"107.20.240.232:80\x00"
-        flags = bytes([0, 0, 0, 1])
+        # flags = bytes([0, 0, 0, 1])
         # relay_data = duck_go_ip + flags
         relay_data = duck_go_ip
         relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         sha1_hash = hashlib.sha1(digest_forward + relay_payload_buffer).digest()
-        # sha1_hash = hashlib.sha256(digest_forward + relay_payload_buffer).digest()
-        # hashlib.new()
         relay_payload.digest = sha1_hash[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
         encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
