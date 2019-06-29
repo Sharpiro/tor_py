@@ -13,34 +13,41 @@ import hashlib
 import secrets
 # external_url = "128.31.0.61"
 external_url = "199.249.230.68"  # exit node
+# external_url = "212.51.129.49"
 
 socket_info = create_tls_socket(external_url)
 tor_client = TorClient(socket_info)
 tor_client.initialize()
 
 # seed = b'12345'
-# data = b'54321'
-# print(list(hashlib.sha1(seed + data).digest()))
+# take = 4
+# data_1 = b'\x05'
+# data_2 = b'\x06'
+# print(list(hashlib.sha1(data_1 + data_2).digest())[:take])
 
-# hashAlg = hashlib.sha1(seed)
-# hashAlg.update(data)
+# hashAlg = hashlib.sha1()
+# hashAlg.update(data_1)
+# hashAlg.update(data_2)
 
-# print(list(hashAlg.digest()))
+# print(list(hashAlg.digest())[:take])
 
 
-# hashAlg2 = hashlib.new("sha1", seed)
-# hashAlg2.update(data)
+# hashAlg2 = hashlib.new("sha1")
+# hashAlg2.update(data_1)
+# hashAlg2.update(data_2)
 
-# print(list(hashAlg2.digest()))
+# print(list(hashAlg2.digest())[:take])
 
-# from Crypto.Cipher import AES
-# from Crypto.Util import Counter
 
-# key = bytes(16)
-# message = "plain"
-# cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
+# key = bytes([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+# message = bytes([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+# cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
 # ciphertext = cipher.encrypt(message)
-# pass
+# cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
+# plaintext = cipher.decrypt(ciphertext)
+# print(list(message))
+# print(list(ciphertext))
+# print(list(plaintext))
 
 
 # def HMAC(key, msg):

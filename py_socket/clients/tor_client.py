@@ -89,8 +89,9 @@ class TorClient:
 
     def send_create2(self):
         ntor_onion_key = base64.b64decode("T0Bm2KDsXTmZjGOigv+mm2BA3EIZjR/zbt30REtukS0=")
-        rsa_signing_key = base64.b64decode(
-            "MIGJAoGBAN0gq1nAJAbjM6k5FBz/GwFc0BO1wPaxrNM+jRAbg/+IbL37k5nfzc1TCum2zVWn51DDqeVjgNFyBGJ7VezS1bziUF2fWePIwnjAmzbCIC6BX8unOymeKpoeYiCxmAzZBLKWTYsm0WTaFTHmrk97qEQ3wakI8Y+ueXygcszH/WAVAgMBAAE=")
+        # ntor_onion_key = base64.b64decode("1MMOHtIUaGjMXMKZLO1Q/kACtRAbO/seYhGi39JHXwM=")
+        rsa_signing_key = base64.b64decode("MIGJAoGBAN0gq1nAJAbjM6k5FBz/GwFc0BO1wPaxrNM+jRAbg/+IbL37k5nfzc1TCum2zVWn51DDqeVjgNFyBGJ7VezS1bziUF2fWePIwnjAmzbCIC6BX8unOymeKpoeYiCxmAzZBLKWTYsm0WTaFTHmrk97qEQ3wakI8Y+ueXygcszH/WAVAgMBAAE=")
+        # rsa_signing_key = base64.b64decode("MIGJAoGBALHz1SApLNxhltrhKdxs5pDE903huHZPdrNvlL0vVhQVI/qxoVd5tGtBIVLFkrg2AL1JvHEr7M2YZDplHKJRmd58SpDY9qkluKI6WuEhKdj53LmG3FZQc+MFoxZ3f9zQQ+ylh7MU2Nz/gh2nwU4BzKRJRIYF5OXf2qwhloX9kQrdAgMBAAE=")
         server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
 
         eph_my_private_key = secrets.token_bytes(32)
@@ -100,7 +101,7 @@ class TorClient:
         handshake_type_buffer = bytes([0, 2])  # ntor
         handshake_length_buffer = bytes([0, len(handshake_data)])
         payload_buffer = handshake_type_buffer + handshake_length_buffer + handshake_data
-        circuit_id = 60000
+        circuit_id = 60_000
         cell = Cell(circuit_id, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
         self.socket_info.socket.send(cell_buffer)
@@ -161,7 +162,7 @@ class TorClient:
         return digest_forward, digest_backward, key_forward, key_backward
 
     def relay(self, keys):
-        digest_forward, _, key_forward, _ = keys
+        digest_forward, digest_backward, key_forward, key_backward = keys
         circuit_id = 60_000
         stream_id = 25_000
         duck_go_ip = b"107.20.240.232:80\x00"
@@ -170,8 +171,7 @@ class TorClient:
         relay_data = duck_go_ip
         relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
-        sha1_hash = hashlib.sha1(digest_forward + relay_payload_buffer).digest()
-        relay_payload.digest = sha1_hash[:4]
+        relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
         encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
         cell = Cell(circuit_id, CellType.relay, encrypted_payload)
@@ -179,21 +179,36 @@ class TorClient:
 
         self.socket_info.socket.send(cell_buffer)
         debug_res = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
+
+        if debug_res[2] == 4:
+            raise Exception("tor protocol exception")
+
+        debug_decrypt = self.decrypt(key_backward, debug_res[3:])
+        expected_digest = debug_decrypt[5:9]
+        debug_decrypt = list(debug_decrypt)
+        debug_decrypt[5] = 0
+        debug_decrypt[6] = 0
+        debug_decrypt[7] = 0
+        debug_decrypt[8] = 0
+        debug_decrypt = bytes(debug_decrypt)
+        actual_digest = hashlib.sha1(digest_backward + debug_decrypt).digest()[:4]
+
+        assert expected_digest == actual_digest
         pass
 
     def encrypt(self, key, plaintext):
-        # if len(key) != 32:
-        #     raise ValueError("key must be 32 bytes")
+        if len(key) != 16:
+            raise ValueError("key must be 32 bytes")
 
-        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
+        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
         ciphertext = cipher.encrypt(plaintext)
         return ciphertext
 
     def decrypt(self, key, ciphertext):
-        # if len(key) != 32:
-        #     raise ValueError("key must be 32 bytes")
+        if len(key) != 16:
+            raise ValueError("key must be 32 bytes")
 
-        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128))
+        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
         plaintext = cipher.decrypt(ciphertext)
         return plaintext
 

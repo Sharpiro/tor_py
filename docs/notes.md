@@ -42,6 +42,9 @@
 
 ## useful source locations
 
+* relay_crypto.c: 262
+  * relay_crypto_init
+  * generate keys and digests for sha 1
 * relay_crypto.c: 185
   * relay_encrypt_cell_outbound
 * relay_crypto.c: 111
