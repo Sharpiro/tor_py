@@ -32,13 +32,12 @@ class TorClient:
         self.recv_auth_challenge()
         self.recv_net_info()
         create_info = self.send_create2()
-        key_seed = self.recv_created2(create_info)
-        keys = self.compute_keys(key_seed)
+        self.recv_created2(create_info)
 
-        self.send_relay_extend2(keys)
-        # self.send_relay_begin(keys)
+        # self.send_relay_extend2()
+        self.send_relay_begin()
         # self.send_relay_data(keys)
-        # self.receive_something(keys)
+        self.receive_something()
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -135,7 +134,11 @@ class TorClient:
 
         assert server_auth == expected_auth
 
-        return key_seed
+        digest_forward, digest_backward, key_forward, key_backward = self.compute_keys(key_seed)
+        self.guard_node.update_digest_forward(digest_forward)
+        self.guard_node.update_digest_backward(digest_backward)
+        self.guard_node.key_forward = key_forward
+        self.guard_node.key_backward = key_backward
 
     def compute_keys(self, key_seed):
         N = 72
@@ -147,25 +150,25 @@ class TorClient:
         k_2 = self.hmacSha(k_1 + m_expand + bytes([2]), key_seed)
         k_3 = self.hmacSha(k_2 + m_expand + bytes([3]), key_seed)
         all_bytes = k_1 + k_2 + k_3
-        digest_forward = all_bytes[:HASH_LEN]
-        digest_backward = all_bytes[HASH_LEN: HASH_LEN*2]
-        key_forward = all_bytes[HASH_LEN*2: HASH_LEN*2 + KEY_LEN]
-        key_backward = all_bytes[HASH_LEN*2 + KEY_LEN: HASH_LEN*2 + KEY_LEN*2]
+        digest_forward: bytes = all_bytes[:HASH_LEN]
+        digest_backward: bytes = all_bytes[HASH_LEN: HASH_LEN*2]
+        key_forward: bytes = all_bytes[HASH_LEN*2: HASH_LEN*2 + KEY_LEN]
+        key_backward: bytes = all_bytes[HASH_LEN*2 + KEY_LEN: HASH_LEN*2 + KEY_LEN*2]
 
         assert len(digest_forward)+len(digest_backward)+len(key_forward)+len(key_backward) == N
 
         return digest_forward, digest_backward, key_forward, key_backward
 
-    def send_relay_extend2(self, keys):
-        digest_forward, _, key_forward, _ = keys
-        circuit_id = 60_000
-        stream_id = 25_000
-        relay_data = b"unknown"
-        relay_payload = RelayPayload(14, stream_id=stream_id, relay_data=relay_data)
-        pass
+    # def send_relay_extend2(self):
+    #     digest_forward, _, key_forward, _ = keys
+    #     circuit_id = 60_000
+    #     stream_id = 25_000
+    #     relay_data = b"unknown"
+    #     relay_payload = RelayPayload(14, stream_id=stream_id, relay_data=relay_data)
+    #     pass
 
-    def send_relay_begin(self, keys):
-        digest_forward, _, key_forward, _ = keys
+    def send_relay_begin(self):
+        key_forward = self.guard_node.key_forward
         circuit_id = 60_000
         stream_id = 25_000
         duck_go_ip = b"107.20.240.232:80\x00"
@@ -174,7 +177,8 @@ class TorClient:
         relay_data = duck_go_ip
         relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
-        relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
+        self.guard_node.update_digest_forward(relay_payload_buffer)
+        relay_payload.digest = self.guard_node.get_digest_forward()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
         encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
         cell = Cell(circuit_id, CellType.relay, encrypted_payload)
@@ -183,8 +187,8 @@ class TorClient:
         self.guard_node.socket.socket.send(cell_buffer)
         pass
 
-    def receive_something(self, keys):
-        _, digest_backward, _, key_backward = keys
+    def receive_something(self):
+        key_backward = self.guard_node.key_backward
 
         debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
 
@@ -199,25 +203,26 @@ class TorClient:
         debug_decrypt[7] = 0
         debug_decrypt[8] = 0
         debug_decrypt = bytes(debug_decrypt)
-        actual_digest = hashlib.sha1(digest_backward + debug_decrypt).digest()[:4]
+        self.guard_node.update_digest_backward(debug_decrypt)
+        actual_digest = self.guard_node.get_digest_backward()[:4]
 
         assert expected_digest == actual_digest
         pass
 
-    def send_relay_data(self, keys):
-        digest_forward, _, key_forward, _ = keys
-        circuit_id = 60_000
-        stream_id = 25_000
-        relay_data = b"GET / HTTP/1.1\r\nHost: 107.20.240.232\r\nAccept: */*\r\n\r\n"
-        relay_payload = RelayPayload(2, stream_id=stream_id, relay_data=relay_data)
-        relay_payload_buffer = pack_relay_payload(relay_payload)
-        relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
-        relay_payload_buffer = pack_relay_payload(relay_payload)
-        encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
-        cell = Cell(circuit_id, CellType.relay, encrypted_payload)
-        cell_buffer = pack_cell(cell)
+    # def send_relay_data(self):
+    #     digest_forward, _, key_forward, _ = keys
+    #     circuit_id = 60_000
+    #     stream_id = 25_000
+    #     relay_data = b"GET / HTTP/1.1\r\nHost: 107.20.240.232\r\nAccept: */*\r\n\r\n"
+    #     relay_payload = RelayPayload(2, stream_id=stream_id, relay_data=relay_data)
+    #     relay_payload_buffer = pack_relay_payload(relay_payload)
+    #     relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
+    #     relay_payload_buffer = pack_relay_payload(relay_payload)
+    #     encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
+    #     cell = Cell(circuit_id, CellType.relay, encrypted_payload)
+    #     cell_buffer = pack_cell(cell)
 
-        self.guard_node.socket.socket.send(cell_buffer)
+    #     self.guard_node.socket.socket.send(cell_buffer)
 
     def encrypt(self, key, plaintext):
         if len(key) != 16:
@@ -235,7 +240,7 @@ class TorClient:
         plaintext = cipher.decrypt(ciphertext)
         return plaintext
 
-    def hmacSha(self, message, key):
+    def hmacSha(self, message, key) -> bytes:
         return hmac.new(key, message, hashlib.sha256).digest()
 
 
