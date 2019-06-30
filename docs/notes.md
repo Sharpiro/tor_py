@@ -104,3 +104,12 @@
     * tested seems fine
   * are we using an exit node
     * yes
+
+## Relay simple GET request
+
+OP -> Begin
+OR -> Connected
+OP -> Data
+OR -> Data
+OR -> Data
+OP -> End

@@ -18,6 +18,7 @@
         "NOSUCHSERVICE",
         "channeltls",
         "circuitbuild",
+        "csailmitnoexit",
         "nacl",
         "ntor",
         "otheraddr",

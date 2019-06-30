@@ -7,6 +7,7 @@ from py_socket.cells import (
     pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload,
     RelayPayload, unpack_relay_payload, pack_relay_payload
 )
+from py_socket.clients.node import Node
 import base64
 import hashlib
 import hmac
@@ -20,13 +21,9 @@ class TorClient:
     MAX_BUFFER_SIZE = 5000
     PROTO_ID = b"ntor-curve25519-sha256-1"
 
-    socket_info: SocketInfo = None
-
-    _buffer: bytes = None
-    _version: int = 0
-
-    def __init__(self, socket_info: SocketInfo):
-        self.socket_info = socket_info
+    def __init__(self, guard_node: Node, exit_node: Node):
+        self.guard_node = guard_node
+        self.exit_node = exit_node
 
     def initialize(self):
         self.send_versions()
@@ -37,42 +34,49 @@ class TorClient:
         create_info = self.send_create2()
         key_seed = self.recv_created2(create_info)
         keys = self.compute_keys(key_seed)
-        self.relay(keys)
+
+        self.send_relay_extend2(keys)
+        # self.send_relay_begin(keys)
+        # self.send_relay_data(keys)
+        # self.receive_something(keys)
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
         payload_buffer = pack_versions_payload(versions_payload)
         variable_cell = VariableCell(0, CellType.versions, payload_buffer)
         variable_cell_buffer = pack_variable_cell(variable_cell)
-        self.socket_info.socket.send(variable_cell_buffer)
+        self.guard_node.socket.socket.send(variable_cell_buffer)
 
     def recv_versions(self):
-        self._buffer = self.socket_info.socket.recv(self.MAX_BUFFER_SIZE)
-        variable_cell, bytes_consumed = unpack_variable_cell(self._buffer)
-        self._buffer = self._buffer[bytes_consumed:]
+        self.guard_node.buffer = self.guard_node.socket.socket.recv(self.MAX_BUFFER_SIZE)
+        variable_cell, bytes_consumed = unpack_variable_cell(self.guard_node.buffer)
+        self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
         versions_payload = unpack_versions_payload(variable_cell.payload)
-        _version = versions_payload.versions[0]
+        self.guard_node.version = versions_payload.versions[0]
+        if self.guard_node.version != 3:
+            raise Exception("we only support version 3 at this time")
+
         # print(variable_cell)
         # print(versions_payload)
         # print(bytes_consumed)
         # print(_version)
-        # print(self._buffer[:20])
+        # print(self.guard_node.buffer[:20])
 
     def recv_certs(self):
-        variable_cell, bytes_consumed = unpack_variable_cell(self._buffer)
+        variable_cell, bytes_consumed = unpack_variable_cell(self.guard_node.buffer)
         certs_payload = unpack_certs_payload(variable_cell.payload)
         _ = certs_payload
         _temp = base64.b64encode(certs_payload.certs[2].cert)
-        self._buffer = self._buffer[bytes_consumed:]
+        self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
 
     def recv_auth_challenge(self):
-        _, bytes_consumed = unpack_variable_cell(self._buffer)
-        self._buffer = self._buffer[bytes_consumed:]
+        _, bytes_consumed = unpack_variable_cell(self.guard_node.buffer)
+        self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
 
     def recv_net_info(self):
-        variable_cell, bytes_consumed = unpack_cell(self._buffer)
-        _temp = list(self._buffer)
-        self._buffer = self._buffer[bytes_consumed:]
+        variable_cell, bytes_consumed = unpack_cell(self.guard_node.buffer)
+        _temp = list(self.guard_node.buffer)
+        self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
         _ = unpack_net_info_payload(variable_cell.payload)
 
         res_net_info_payload = NetInfoPayload(
@@ -83,15 +87,11 @@ class TorClient:
             0, CellType.net_info, res_net_info_payload_buffer)
         res_cell_buffer = pack_cell(res__cell)
         _ = list(res_cell_buffer)
-        self.socket_info.socket.send(res_cell_buffer)
-        # self.socket_info.socket.recv(self.MAX_BUFFER_SIZE)
-        pass
+        self.guard_node.socket.socket.send(res_cell_buffer)
 
     def send_create2(self):
-        ntor_onion_key = base64.b64decode("T0Bm2KDsXTmZjGOigv+mm2BA3EIZjR/zbt30REtukS0=")
-        # ntor_onion_key = base64.b64decode("1MMOHtIUaGjMXMKZLO1Q/kACtRAbO/seYhGi39JHXwM=")
-        rsa_signing_key = base64.b64decode("MIGJAoGBAN0gq1nAJAbjM6k5FBz/GwFc0BO1wPaxrNM+jRAbg/+IbL37k5nfzc1TCum2zVWn51DDqeVjgNFyBGJ7VezS1bziUF2fWePIwnjAmzbCIC6BX8unOymeKpoeYiCxmAzZBLKWTYsm0WTaFTHmrk97qEQ3wakI8Y+ueXygcszH/WAVAgMBAAE=")
-        # rsa_signing_key = base64.b64decode("MIGJAoGBALHz1SApLNxhltrhKdxs5pDE903huHZPdrNvlL0vVhQVI/qxoVd5tGtBIVLFkrg2AL1JvHEr7M2YZDplHKJRmd58SpDY9qkluKI6WuEhKdj53LmG3FZQc+MFoxZ3f9zQQ+ylh7MU2Nz/gh2nwU4BzKRJRIYF5OXf2qwhloX9kQrdAgMBAAE=")
+        ntor_onion_key = base64.b64decode(self.guard_node.onion_key)
+        rsa_signing_key = base64.b64decode(self.guard_node.rsa_signing_key)
         server_identity_digest = hashlib.sha1(rsa_signing_key).digest()
 
         eph_my_private_key = secrets.token_bytes(32)
@@ -104,7 +104,7 @@ class TorClient:
         circuit_id = 60_000
         cell = Cell(circuit_id, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
-        self.socket_info.socket.send(cell_buffer)
+        self.guard_node.socket.socket.send(cell_buffer)
 
         return eph_my_private_key, eph_my_public_key, ntor_onion_key, server_identity_digest
 
@@ -115,10 +115,10 @@ class TorClient:
 
         eph_my_private_key, eph_my_public_key, ntor_onion_key, server_identity_digest = create_info
 
-        self._buffer = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
-        eph_server_public_key = self._buffer[5:32 + 5]
-        self._buffer = self._buffer[37:37+32]
-        server_auth = list(self._buffer)
+        self.guard_node.buffer = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
+        eph_server_public_key = self.guard_node.buffer[5:32 + 5]
+        self.guard_node.buffer = self.guard_node.buffer[37:37+32]
+        server_auth = list(self.guard_node.buffer)
 
         eph_shared_key = scalarmult(eph_my_private_key, eph_server_public_key)
         long_shared_key = scalarmult(eph_my_private_key, ntor_onion_key)
@@ -126,8 +126,7 @@ class TorClient:
         secret_input = (eph_shared_key + long_shared_key + server_identity_digest + ntor_onion_key +
                         eph_my_public_key + eph_server_public_key + self.PROTO_ID)
 
-        # key_seed = self.hmacSha(secret_input, t_key)
-        key_seed = self.outer_compute_keys(secret_input, t_key)
+        key_seed = self.hmacSha(secret_input, t_key)
         verify = self.hmacSha(secret_input, t_verify)
         auth_input = (verify + server_identity_digest + ntor_onion_key + eph_server_public_key
                       + eph_my_public_key + self.PROTO_ID + b"Server")
@@ -136,10 +135,6 @@ class TorClient:
 
         assert server_auth == expected_auth
 
-        return key_seed
-
-    def outer_compute_keys(self, secret_input, t_key):
-        key_seed = self.hmacSha(secret_input, t_key)
         return key_seed
 
     def compute_keys(self, key_seed):
@@ -161,8 +156,16 @@ class TorClient:
 
         return digest_forward, digest_backward, key_forward, key_backward
 
-    def relay(self, keys):
-        digest_forward, digest_backward, key_forward, key_backward = keys
+    def send_relay_extend2(self, keys):
+        digest_forward, _, key_forward, _ = keys
+        circuit_id = 60_000
+        stream_id = 25_000
+        relay_data = b"unknown"
+        relay_payload = RelayPayload(14, stream_id=stream_id, relay_data=relay_data)
+        pass
+
+    def send_relay_begin(self, keys):
+        digest_forward, _, key_forward, _ = keys
         circuit_id = 60_000
         stream_id = 25_000
         duck_go_ip = b"107.20.240.232:80\x00"
@@ -177,8 +180,13 @@ class TorClient:
         cell = Cell(circuit_id, CellType.relay, encrypted_payload)
         cell_buffer = pack_cell(cell)
 
-        self.socket_info.socket.send(cell_buffer)
-        debug_res = self.socket_info.socket.recv(TorClient.MAX_BUFFER_SIZE)
+        self.guard_node.socket.socket.send(cell_buffer)
+        pass
+
+    def receive_something(self, keys):
+        _, digest_backward, _, key_backward = keys
+
+        debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
 
         if debug_res[2] == 4:
             raise Exception("tor protocol exception")
@@ -195,6 +203,21 @@ class TorClient:
 
         assert expected_digest == actual_digest
         pass
+
+    def send_relay_data(self, keys):
+        digest_forward, _, key_forward, _ = keys
+        circuit_id = 60_000
+        stream_id = 25_000
+        relay_data = b"GET / HTTP/1.1\r\nHost: 107.20.240.232\r\nAccept: */*\r\n\r\n"
+        relay_payload = RelayPayload(2, stream_id=stream_id, relay_data=relay_data)
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+        relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+        encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
+        cell = Cell(circuit_id, CellType.relay, encrypted_payload)
+        cell_buffer = pack_cell(cell)
+
+        self.guard_node.socket.socket.send(cell_buffer)
 
     def encrypt(self, key, plaintext):
         if len(key) != 16:
