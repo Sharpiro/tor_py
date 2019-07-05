@@ -5,7 +5,8 @@ from py_socket.cells import (
     CellType, pack_variable_cell, unpack_variable_cell,
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
     pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload,
-    RelayPayload, unpack_relay_payload, pack_relay_payload
+    RelayPayload, unpack_relay_payload, pack_relay_payload, unpack_created2_payload,
+    Created2Payload
 )
 from py_socket.clients.node import Node
 import base64
@@ -18,12 +19,15 @@ from Crypto.Util import Counter
 
 
 class TorClient:
+    CIRCUIT_ID_SIZE = 2
     MAX_BUFFER_SIZE = 5000
+    CELL_SIZE = 512
     PROTO_ID = b"ntor-curve25519-sha256-1"
 
     def __init__(self, guard_node: Node, exit_node: Node):
         self.guard_node = guard_node
         self.exit_node = exit_node
+        self.circuit_id = 60_000
 
     def initialize(self):
         self.send_versions()
@@ -31,11 +35,21 @@ class TorClient:
         self.recv_certs()
         self.recv_auth_challenge()
         self.recv_net_info()
-        create_info = self.send_create2()
-        self.recv_created2(create_info)
 
-        self.send_relay_extend2()
-        # self.send_relay_begin()
+        # create first hop
+        create_info = self.send_create2()
+        created2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)
+        created2_payload = unpack_created2_payload(created2_cell.payload)
+        self.recv_created2(create_info, created2_payload, self.guard_node)
+
+        # create second hop
+        create_info = self.send_relay_extend2()
+        extended2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)
+        created2_payload = unpack_created2_payload(extended2_cell.payload[11:])
+        self.recv_created2(create_info, created2_payload, self.exit_node)
+
+        # send data
+        self.send_relay_begin()
         # self.send_relay_data(keys)
         self.receive_something()
 
@@ -73,10 +87,10 @@ class TorClient:
         self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
 
     def recv_net_info(self):
-        variable_cell, bytes_consumed = unpack_cell(self.guard_node.buffer)
+        cell, bytes_consumed = unpack_cell(self.guard_node.buffer)
         _temp = list(self.guard_node.buffer)
         self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
-        _ = unpack_net_info_payload(variable_cell.payload)
+        _ = unpack_net_info_payload(cell.payload)
 
         res_net_info_payload = NetInfoPayload(
             int(time()), 4, 4, bytes([0, 0, 0, 0]), 1, 4, 4, bytes([0, 0, 0, 0]))
@@ -91,8 +105,7 @@ class TorClient:
     def send_create2(self):
         payload_buffer, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.guard_node)
 
-        circuit_id = 60_000
-        cell = Cell(circuit_id, CellType.create2, payload_buffer)
+        cell = Cell(self.circuit_id, CellType.create2, payload_buffer)
         cell_buffer = pack_cell(cell)
         self.guard_node.socket.socket.send(cell_buffer)
 
@@ -109,41 +122,60 @@ class TorClient:
 
         return payload_buffer, eph_my_private_key, eph_my_public_key
 
-    def recv_created2(self, create_info):
+    def recv_cell(self, node: Node, max_size):
+        node.buffer = node.socket.socket.recv(max_size)
+        cell_buffer = node.buffer
+        cell_type = CellType(cell_buffer[TorClient.CIRCUIT_ID_SIZE])
+        cell_payload = cell_buffer[TorClient.CIRCUIT_ID_SIZE + 1:]
+        if cell_type == CellType.destroy:
+            raise Exception("tor protocol exception")
+        elif cell_type == CellType.created2:
+            pass
+        elif cell_type == CellType.relay:
+            # decrypted_payload = self.decrypt(node.key_backward, cell_payload)
+            decrypted_payload = node.decrypt_backward(cell_payload)
+            self._verify_digest(node, decrypted_payload, "backward")
+            cell_buffer = cell_buffer[:3] + decrypted_payload
+        else:
+            raise Exception(f"Received unexpected cell type '{cell_type}'")
+
+        cell, bytes_consumed = unpack_cell(cell_buffer)
+        node.buffer = node.buffer[bytes_consumed:]
+
+        return cell
+
+    def recv_created2(self, create_info, created2_payload: Created2Payload, node: Node):
         t_mac = self.PROTO_ID + b":mac"
         t_key = self.PROTO_ID + b":key_extract"
         t_verify = self.PROTO_ID + b":verify"
 
         eph_my_private_key, eph_my_public_key = create_info
 
-        self.guard_node.buffer = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
-        eph_server_public_key = self.guard_node.buffer[5:32 + 5]
-        self.guard_node.buffer = self.guard_node.buffer[37:37+32]
-        server_auth = list(self.guard_node.buffer)
+        eph_server_public_key = created2_payload.eph_server_public_key
 
         eph_shared_key = scalarmult(eph_my_private_key, eph_server_public_key)
-        long_shared_key = scalarmult(eph_my_private_key, self.guard_node.onion_key)
+        long_shared_key = scalarmult(eph_my_private_key, node.onion_key)
 
-        secret_input = (eph_shared_key + long_shared_key + self.guard_node.server_identity_digest + self.guard_node.onion_key +
+        secret_input = (eph_shared_key + long_shared_key + node.server_identity_digest + node.onion_key +
                         eph_my_public_key + eph_server_public_key + self.PROTO_ID)
 
         key_seed = self.hmacSha(secret_input, t_key)
         verify = self.hmacSha(secret_input, t_verify)
-        auth_input = (verify + self.guard_node.server_identity_digest + self.guard_node.onion_key + eph_server_public_key
+        auth_input = (verify + node.server_identity_digest + node.onion_key + eph_server_public_key
                       + eph_my_public_key + self.PROTO_ID + b"Server")
 
-        expected_auth = list(self.hmacSha(auth_input, t_mac))
+        actual_auth = self.hmacSha(auth_input, t_mac)
 
-        assert server_auth == expected_auth
+        assert created2_payload.server_auth == actual_auth
 
         digest_forward, digest_backward, key_forward, key_backward = self._compute_keys(key_seed)
-        self.guard_node.update_digest_forward(digest_forward)
-        self.guard_node.update_digest_backward(digest_backward)
-        self.guard_node.key_forward = key_forward
-        self.guard_node.key_backward = key_backward
+        node.update_digest_forward(digest_forward)
+        node.update_digest_backward(digest_backward)
+        node.init_ciphers(key_forward, key_backward)
+        # node.key_forward = key_forward
+        # node.key_backward = key_backward
 
     def send_relay_extend2(self):
-        circuit_id = 60_000
 
         link_specifiers_count = bytes([2])
         ip_specifier = bytes([0, 6]) + bytes([176, 10, 99, 201]) + bytes([1, 187])
@@ -162,9 +194,10 @@ class TorClient:
         relay_payload.digest = self.guard_node.get_digest_forward()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
 
-        encrypted_payload = self.encrypt(self.guard_node.key_forward, relay_payload_buffer)
+        encrypted_payload = self.guard_node.encrypt_forward(relay_payload_buffer)
+        # encrypted_payload = self.encrypt(self.guard_node.key_forward, relay_payload_buffer)
 
-        cell = Cell(circuit_id, CellType.relay_early, encrypted_payload)
+        cell = Cell(self.circuit_id, CellType.relay_early, encrypted_payload)
         cell_buffer = pack_cell(cell)
         self.guard_node.socket.socket.send(cell_buffer)
 
@@ -176,23 +209,25 @@ class TorClient:
         if debug_res[2] == 4:
             raise Exception("tor protocol exception")
 
-        debug_decrypt = self.decrypt(self.guard_node.key_backward, debug_res[3:])
-        expected_digest = debug_decrypt[5:9]
-        debug_decrypt = list(debug_decrypt)
-        debug_decrypt[5] = 0
-        debug_decrypt[6] = 0
-        debug_decrypt[7] = 0
-        debug_decrypt[8] = 0
-        debug_decrypt = bytes(debug_decrypt)
-        self.guard_node.update_digest_backward(debug_decrypt)
-        actual_digest = self.guard_node.get_digest_backward()[:4]
+        # guard decryption
+        # debug_decrypt = self.decrypt(self.guard_node.key_backward, debug_res[3:])
+        debug_decrypt = self.guard_node.decrypt_backward(debug_res[3:])
 
-        assert expected_digest == actual_digest
+        # exit decryption
+        # debug_decrypt = self.decrypt(self.exit_node.key_backward, debug_decrypt)
+        debug_decrypt = self.exit_node.decrypt_backward(debug_decrypt)
+
+        self._verify_digest(self.guard_node, debug_decrypt, "backward")
         pass
 
+    def _verify_digest(self, node, data, direction):
+        expected_digest = data[5:9]
+        data_no_digest = data[:5] + bytes(4) + data[9:]
+        node.update_digest_backward(data_no_digest)
+        actual_digest = node.get_digest_backward()[:4]
+        assert expected_digest == actual_digest
+
     def send_relay_begin(self):
-        key_forward = self.guard_node.key_forward
-        circuit_id = 60_000
         stream_id = 25_000
         duck_go_ip = b"107.20.240.232:80\x00"
         # flags = bytes([0, 0, 0, 1])
@@ -200,11 +235,19 @@ class TorClient:
         relay_data = duck_go_ip
         relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
-        self.guard_node.update_digest_forward(relay_payload_buffer)
-        relay_payload.digest = self.guard_node.get_digest_forward()[:4]
+        self.exit_node.update_digest_forward(relay_payload_buffer)
+        relay_payload.digest = self.exit_node.get_digest_forward()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
-        encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
-        cell = Cell(circuit_id, CellType.relay, encrypted_payload)
+
+        # encrypt for exit node
+        # encrypted_payload = self.encrypt(self.exit_node.key_forward, relay_payload_buffer)
+        encrypted_payload = self.exit_node.encrypt_forward(relay_payload_buffer)
+
+        # encrypt for guard node
+        # encrypted_payload = self.encrypt(self.guard_node.key_forward, encrypted_payload)
+        encrypted_payload = self.guard_node.encrypt_forward(encrypted_payload)
+
+        cell = Cell(self.circuit_id, CellType.relay, encrypted_payload)
         cell_buffer = pack_cell(cell)
 
         self.guard_node.socket.socket.send(cell_buffer)
@@ -231,7 +274,6 @@ class TorClient:
 
     # def send_relay_data(self):
     #     digest_forward, _, key_forward, _ = keys
-    #     circuit_id = 60_000
     #     stream_id = 25_000
     #     relay_data = b"GET / HTTP/1.1\r\nHost: 107.20.240.232\r\nAccept: */*\r\n\r\n"
     #     relay_payload = RelayPayload(2, stream_id=stream_id, relay_data=relay_data)
@@ -244,39 +286,21 @@ class TorClient:
 
     #     self.guard_node.socket.socket.send(cell_buffer)
 
-    def encrypt(self, key, plaintext):
-        if len(key) != 16:
-            raise ValueError("key must be 32 bytes")
+    # def encrypt(self, key, plaintext) -> bytes:
+    #     if len(key) != 16:
+    #         raise ValueError("key must be 32 bytes")
 
-        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
-        ciphertext = cipher.encrypt(plaintext)
-        return ciphertext
+    #     cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
+    #     ciphertext = cipher.encrypt(plaintext)
+    #     return ciphertext
 
-    def decrypt(self, key, ciphertext):
-        if len(key) != 16:
-            raise ValueError("key must be 32 bytes")
+    # def decrypt(self, key, ciphertext) -> bytes:
+    #     if len(key) != 16:
+    #         raise ValueError("key must be 32 bytes")
 
-        cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
-        plaintext = cipher.decrypt(ciphertext)
-        return plaintext
+    #     cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
+    #     plaintext = cipher.decrypt(ciphertext)
+    #     return plaintext
 
     def hmacSha(self, message, key) -> bytes:
         return hmac.new(key, message, hashlib.sha256).digest()
-
-
-'''
-struct fixed_cell
-{
-    uint16 circuit_id
-    uint8 command
-    uint8[509] payload
-}
-
-struct variable_cell
-{
-    uint16 circuit_id
-    uint8 command
-    uint16 payload_length
-    uint8[payload_length] payload
-}
-'''
