@@ -37,7 +37,7 @@ class TorClient:
         self.send_relay_extend2()
         # self.send_relay_begin()
         # self.send_relay_data(keys)
-        # self.receive_something()
+        self.receive_something()
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -145,12 +145,13 @@ class TorClient:
     def send_relay_extend2(self):
         circuit_id = 60_000
 
-        link_specifiers_count = bytes([3])
+        link_specifiers_count = bytes([2])
         ip_specifier = bytes([0, 6]) + bytes([176, 10, 99, 201]) + bytes([1, 187])
         identity_specifier = bytes([2, 20]) + self.exit_node.server_identity_digest
-        temp_spec = bytes([3, 32]) + base64.b64decode("lC8MDUpVwPFZyej8EgR0x0NAqqZa8LiIhULeDf1y06g=")
+        # temp_spec = bytes([3, 32]) + base64.b64decode("lC8MDUpVwPFZyej8EgR0x0NAqqZa8LiIhULeDf1y06g=")
         # todo: may need to add ed25519 link specifier
-        link_specifiers_bytes = link_specifiers_count + ip_specifier + identity_specifier + temp_spec
+        # link_specifiers_bytes = link_specifiers_count + ip_specifier + identity_specifier + temp_spec
+        link_specifiers_bytes = link_specifiers_count + ip_specifier + identity_specifier
 
         handshake_bytes, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.exit_node)
 
@@ -163,12 +164,9 @@ class TorClient:
 
         encrypted_payload = self.encrypt(self.guard_node.key_forward, relay_payload_buffer)
 
-        cell = Cell(circuit_id, CellType.relay, encrypted_payload)
+        cell = Cell(circuit_id, CellType.relay_early, encrypted_payload)
         cell_buffer = pack_cell(cell)
         self.guard_node.socket.socket.send(cell_buffer)
-
-        # debug receive
-        self.receive_something()
 
         return eph_my_private_key, eph_my_public_key
 

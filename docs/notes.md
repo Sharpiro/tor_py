@@ -42,9 +42,13 @@
 
 ## useful source locations
 
+* extend2
+  * onion.c: 621
+  * onion_crypt.c: 110
+  * onion_ntor.c: 93
 * relay_crypto.c: 262
   * relay_crypto_init
-  * generate keys and digests for sha 1
+  * generate keys and sha1 digests
 * relay_crypto.c: 185
   * relay_encrypt_cell_outbound
 * relay_crypto.c: 111
@@ -82,6 +86,8 @@
   * What does it mean "We also require AES256" right after saying "we use 128-bit AES in counter mode"
   * May want to clarify that you use 256 bit keys instead
   * Though that actually doesn't make since since AES 256 requires 32 byte keys, and Tor uses 16 bytes keys for stream cipher
+* onion skin unclear when using extend2/ntor
+* no error received when sending relay extend2 as relay instead of relay early
 
 ## Questions
 

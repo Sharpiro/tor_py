@@ -6,6 +6,7 @@ class CellType(Enum):
     destroy = 4
     versions = 7
     net_info = 8
+    relay_early = 9
     create2 = 10
     created2 = 11
     certs = 129
