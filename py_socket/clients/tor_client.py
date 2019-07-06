@@ -6,7 +6,7 @@ from py_socket.cells import (
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
     pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload,
     RelayPayload, unpack_relay_payload, pack_relay_payload, unpack_created2_payload,
-    Created2Payload
+    Created2Payload, RelayType
 )
 from py_socket.clients.node import Node
 import base64
@@ -27,7 +27,9 @@ class TorClient:
     def __init__(self, guard_node: Node, exit_node: Node):
         self.guard_node = guard_node
         self.exit_node = exit_node
+        self.nodes = [guard_node, exit_node]
         self.circuit_id = 60_000
+        self.stream_id = 25_000
 
     def initialize(self):
         self.send_versions()
@@ -49,9 +51,18 @@ class TorClient:
         self.recv_created2(create_info, created2_payload, self.exit_node)
 
         # send data
-        self.send_relay_begin()
-        # self.send_relay_data(keys)
+        # url = "107.20.240.232"  # duck duck go
+        url = "45.33.7.16" # http vs https
+        port = "80"
+        addr_port = bytes(f"{url}:{port}\x00", "utf8")
+
+        self.send_relay_begin(addr_port)
         self.receive_something()
+
+        relay_data = bytes(f"GET / HTTP/1.1\r\nHost: {url}\r\nAccept: */*\r\n\r\n", "utf8")
+        self.send_relay_data(relay_data)
+        res = self.receive_more()
+        print(res)
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -67,7 +78,7 @@ class TorClient:
         versions_payload = unpack_versions_payload(variable_cell.payload)
         self.guard_node.version = versions_payload.versions[0]
         if self.guard_node.version != 3:
-            raise Exception("we only support version 3 at this time")
+            raise Exception("Only version 3 is supported at this time")
 
         # print(variable_cell)
         # print(versions_payload)
@@ -188,7 +199,7 @@ class TorClient:
         handshake_bytes, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.exit_node)
 
         relay_data = link_specifiers_bytes + handshake_bytes
-        relay_payload = RelayPayload(14, relay_data=relay_data)
+        relay_payload = RelayPayload(RelayType.RELAY_EXTEND2, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         self.guard_node.update_digest_forward(relay_payload_buffer)
         relay_payload.digest = self.guard_node.get_digest_forward()[:4]
@@ -209,16 +220,37 @@ class TorClient:
         if debug_res[2] == 4:
             raise Exception("tor protocol exception")
 
-        # guard decryption
-        # debug_decrypt = self.decrypt(self.guard_node.key_backward, debug_res[3:])
-        debug_decrypt = self.guard_node.decrypt_backward(debug_res[3:])
-
-        # exit decryption
-        # debug_decrypt = self.decrypt(self.exit_node.key_backward, debug_decrypt)
-        debug_decrypt = self.exit_node.decrypt_backward(debug_decrypt)
-
-        self._verify_digest(self.guard_node, debug_decrypt, "backward")
+        debug_decrypt = self.get_decrypted_payload(debug_res[3:])
+        self._verify_digest(self.exit_node, debug_decrypt, "backward")
         pass
+
+    def receive_more(self):
+        buffer = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
+
+        if buffer[2] == 4:
+            raise Exception("tor protocol exception")
+
+        recv_length = len(buffer)
+        total_cells, rem = divmod(recv_length, 512)
+        if rem != 0:
+            raise Exception("invalid cell length")
+        if total_cells < 1:
+            raise Exception("invalid cells delivered")
+
+        cells = []
+        relay_data = bytes()
+        for i in range(total_cells):
+            start = 512 * i
+            end = 512 * (i+1)
+            cell, _ = unpack_cell(buffer[start:end])
+            cell.payload = self.get_decrypted_payload(cell.payload)
+            self._verify_digest(self.exit_node, cell.payload, "backward")
+            cells.append(cell)
+            relay_payload = unpack_relay_payload(cell.payload)
+            relay_data += relay_payload.data[:relay_payload.length]
+            pass
+
+        return relay_data
 
     def _verify_digest(self, node, data, direction):
         expected_digest = data[5:9]
@@ -227,31 +259,47 @@ class TorClient:
         actual_digest = node.get_digest_backward()[:4]
         assert expected_digest == actual_digest
 
-    def send_relay_begin(self):
-        stream_id = 25_000
-        duck_go_ip = b"107.20.240.232:80\x00"
+    def send_relay_begin(self, addr_port):
         # flags = bytes([0, 0, 0, 1])
         # relay_data = duck_go_ip + flags
-        relay_data = duck_go_ip
-        relay_payload = RelayPayload(1, stream_id=stream_id, relay_data=relay_data)
+        relay_data = addr_port
+        relay_payload = RelayPayload(RelayType.RELAY_BEGIN, stream_id=self.stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         self.exit_node.update_digest_forward(relay_payload_buffer)
         relay_payload.digest = self.exit_node.get_digest_forward()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
 
-        # encrypt for exit node
-        # encrypted_payload = self.encrypt(self.exit_node.key_forward, relay_payload_buffer)
-        encrypted_payload = self.exit_node.encrypt_forward(relay_payload_buffer)
-
-        # encrypt for guard node
-        # encrypted_payload = self.encrypt(self.guard_node.key_forward, encrypted_payload)
-        encrypted_payload = self.guard_node.encrypt_forward(encrypted_payload)
+        encrypted_payload = self.get_encrypted_payload(relay_payload_buffer)
 
         cell = Cell(self.circuit_id, CellType.relay, encrypted_payload)
         cell_buffer = pack_cell(cell)
 
         self.guard_node.socket.socket.send(cell_buffer)
-        pass
+
+    def get_encrypted_payload(self, relay_payload_buffer):
+        encrypted_payload_buffer = relay_payload_buffer
+        for node in self.nodes[::-1]:
+            encrypted_payload_buffer = node.encrypt_forward(encrypted_payload_buffer)
+        return encrypted_payload_buffer
+
+    def get_decrypted_payload(self, encrypted_payload_buffer):
+        decrypted_payload_buffer = encrypted_payload_buffer
+        for node in self.nodes:
+            decrypted_payload_buffer = node.decrypt_backward(decrypted_payload_buffer)
+        return decrypted_payload_buffer
+
+    def send_relay_data(self, relay_data):
+        relay_payload = RelayPayload(RelayType.RELAY_DATA, stream_id=self.stream_id, relay_data=relay_data)
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+        self.exit_node.update_digest_forward(relay_payload_buffer)
+        relay_payload.digest = self.exit_node.get_digest_forward()[:4]
+        relay_payload_buffer = pack_relay_payload(relay_payload)
+
+        encrypted_payload = self.get_encrypted_payload(relay_payload_buffer)
+        cell = Cell(self.circuit_id, CellType.relay, encrypted_payload)
+        cell_buffer = pack_cell(cell)
+
+        self.guard_node.socket.socket.send(cell_buffer)
 
     def _compute_keys(self, key_seed):
         N = 72
@@ -271,36 +319,6 @@ class TorClient:
         assert len(digest_forward)+len(digest_backward)+len(key_forward)+len(key_backward) == N
 
         return digest_forward, digest_backward, key_forward, key_backward
-
-    # def send_relay_data(self):
-    #     digest_forward, _, key_forward, _ = keys
-    #     stream_id = 25_000
-    #     relay_data = b"GET / HTTP/1.1\r\nHost: 107.20.240.232\r\nAccept: */*\r\n\r\n"
-    #     relay_payload = RelayPayload(2, stream_id=stream_id, relay_data=relay_data)
-    #     relay_payload_buffer = pack_relay_payload(relay_payload)
-    #     relay_payload.digest = hashlib.sha1(digest_forward + relay_payload_buffer).digest()[:4]
-    #     relay_payload_buffer = pack_relay_payload(relay_payload)
-    #     encrypted_payload = self.encrypt(key_forward, relay_payload_buffer)
-    #     cell = Cell(circuit_id, CellType.relay, encrypted_payload)
-    #     cell_buffer = pack_cell(cell)
-
-    #     self.guard_node.socket.socket.send(cell_buffer)
-
-    # def encrypt(self, key, plaintext) -> bytes:
-    #     if len(key) != 16:
-    #         raise ValueError("key must be 32 bytes")
-
-    #     cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
-    #     ciphertext = cipher.encrypt(plaintext)
-    #     return ciphertext
-
-    # def decrypt(self, key, ciphertext) -> bytes:
-    #     if len(key) != 16:
-    #         raise ValueError("key must be 32 bytes")
-
-    #     cipher = AES.new(key, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
-    #     plaintext = cipher.decrypt(ciphertext)
-    #     return plaintext
 
     def hmacSha(self, message, key) -> bytes:
         return hmac.new(key, message, hashlib.sha256).digest()

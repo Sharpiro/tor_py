@@ -88,6 +88,7 @@
   * Though that actually doesn't make since since AES 256 requires 32 byte keys, and Tor uses 16 bytes keys for stream cipher
 * onion skin unclear when using extend2/ntor
 * no error received when sending relay extend2 as relay instead of relay early
+* note totally clear that if you issue a relay begin from a non-anonymous circuit, you will be rejected with a violation
 
 ## Questions
 
@@ -113,6 +114,7 @@
 
 ## Relay simple GET request
 
+OP -> Resolve
 OP -> Begin
 OR -> Connected
 OP -> Data

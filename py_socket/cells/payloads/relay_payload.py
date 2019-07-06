@@ -1,4 +1,5 @@
 from struct import pack, unpack
+from py_socket.cells.relay_type import RelayType
 
 
 class RelayPayload:
@@ -13,7 +14,7 @@ class RelayPayload:
 
     def __init__(
         self,
-        relay_command: int,
+        relay_command: RelayType,
         recognized: int = 0,
         stream_id: int = 0,
         digest: bytes = bytes([0, 0, 0, 0]),
@@ -33,12 +34,15 @@ class RelayPayload:
 
 
 def unpack_relay_payload(buffer: bytes) -> RelayPayload:
-    relay_payload = RelayPayload(
-        *unpack(f'>BHH4sH{RelayPayload.DATA_SIZE}s', buffer[:RelayPayload.PAYLOAD_LEN]))
+    unpacked = unpack(f'>BHH4sH{RelayPayload.DATA_SIZE}s', buffer[:RelayPayload.PAYLOAD_LEN])
+    relay_data_len = unpacked[4]
+    relay_data = unpacked[5][:relay_data_len]
+    modified_tuple = (*unpacked[:4], relay_data)
+    relay_payload = RelayPayload(*modified_tuple)
     return relay_payload
 
 
 def pack_relay_payload(payload: RelayPayload) -> bytes:
-    buffer = pack(f'>BHH4sH{RelayPayload.DATA_SIZE}s', payload.relay_command, payload.recognized,
+    buffer = pack(f'>BHH4sH{RelayPayload.DATA_SIZE}s', payload.relay_command.value, payload.recognized,
                   payload.stream_id, payload.digest, payload.length, payload.data)
     return buffer

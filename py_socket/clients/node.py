@@ -16,18 +16,18 @@ class Node:
         self.socket = socket
         self.buffer: bytes
         self.version: int
-        self.key_forward: str
-        self.key_backward: str
+        self._key_forward: str
+        self._key_backward: str
         self._digest_forward = hashlib.sha1()
         self._digest_backward = hashlib.sha1()
-        self.cipher_forward: AESCipher
-        self.cipher_backward: AESCipher
+        self._cipher_forward: AESCipher
+        self._cipher_backward: AESCipher
 
     def init_ciphers(self, key_forward: str, key_backward: str):
-        self.key_forward = key_forward
-        self.key_backward = key_backward
-        self.cipher_forward = AES.new(key_forward, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
-        self.cipher_backward = AES.new(key_backward, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
+        self._key_forward = key_forward
+        self._key_backward = key_backward
+        self._cipher_forward = AES.new(key_forward, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
+        self._cipher_backward = AES.new(key_backward, AES.MODE_CTR, counter=Counter.new(128, initial_value=0))
 
     def update_digest_forward(self, data: bytes):
         self._digest_forward.update(data)
@@ -42,17 +42,17 @@ class Node:
         return self._digest_backward.digest()
 
     def encrypt_forward(self, plaintext) -> bytes:
-        ciphertext = self.cipher_forward.encrypt(plaintext)
+        ciphertext = self._cipher_forward.encrypt(plaintext)
         return ciphertext
 
     def decrypt_forward(self, ciphertext) -> bytes:
-        plaintext = self.cipher_forward.decrypt(ciphertext)
+        plaintext = self._cipher_forward.decrypt(ciphertext)
         return plaintext
 
     def encrypt_backward(self, plaintext) -> bytes:
-        ciphertext = self.cipher_backward.encrypt(plaintext)
+        ciphertext = self._cipher_backward.encrypt(plaintext)
         return ciphertext
 
     def decrypt_backward(self, ciphertext) -> bytes:
-        plaintext = self.cipher_backward.decrypt(ciphertext)
+        plaintext = self._cipher_backward.decrypt(ciphertext)
         return plaintext

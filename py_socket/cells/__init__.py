@@ -4,3 +4,4 @@ from py_socket.cells.variable_cell import(
 from py_socket.cells.cell import Cell, pack_cell, unpack_cell
 from py_socket.cells.payloads import *
 from py_socket.cells.cell_type import CellType
+from py_socket.cells.relay_type import RelayType
