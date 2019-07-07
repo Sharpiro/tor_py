@@ -115,6 +115,7 @@
 ## Relay simple GET request
 
 OP -> Resolve
+OR -> Resolved
 OP -> Begin
 OR -> Connected
 OP -> Data

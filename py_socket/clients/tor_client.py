@@ -8,6 +8,7 @@ from py_socket.cells import (
     RelayPayload, unpack_relay_payload, pack_relay_payload, unpack_created2_payload,
     Created2Payload, RelayType
 )
+from py_socket.tools import get_url_info
 from py_socket.clients.node import Node
 import base64
 import hashlib
@@ -51,15 +52,20 @@ class TorClient:
         self.recv_created2(create_info, created2_payload, self.exit_node)
 
         # send data
+        # url = "http://www.httpvshttps.com"
+        url = "http://statichostsharp.blob.core.windows.net/misc/rules.json"
         # url = "107.20.240.232"  # duck duck go
-        url = "45.33.7.16" # http vs https
-        port = "80"
-        addr_port = bytes(f"{url}:{port}\x00", "utf8")
+        # url = "45.33.7.16"  # http vs https
+        url_info = get_url_info(url)
 
+        self.send_relay_resolve(url_info[1])
+        ip_address_bytes = self.recv_relay_resolved()
+        ip_address = ".".join(str(x) for x in ip_address_bytes)
+        addr_port = bytes(f"{ip_address}:{url_info[2]}\x00", "utf8")
         self.send_relay_begin(addr_port)
         self.receive_something()
 
-        relay_data = bytes(f"GET / HTTP/1.1\r\nHost: {url}\r\nAccept: */*\r\n\r\n", "utf8")
+        relay_data = bytes(f"GET {url_info[3]} HTTP/1.1\r\nHost: {url_info[1]}\r\nAccept: */*\r\n\r\n", "utf8")
         self.send_relay_data(relay_data)
         res = self.receive_more()
         print(res)
@@ -259,22 +265,41 @@ class TorClient:
         actual_digest = node.get_digest_backward()[:4]
         assert expected_digest == actual_digest
 
+    def send_relay_resolve(self, hostname):
+        hostname_bytes = bytes(hostname, "utf8") + b'\x00'
+
+        cell = self.get_encrypted_relay_cell(RelayType.RELAY_RESOLVE, hostname_bytes)
+        cell_buffer = pack_cell(cell)
+
+        self.guard_node.socket.socket.send(cell_buffer)
+
+    def recv_relay_resolved(self):
+        debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
+        if debug_res[2] == 4:
+            raise Exception("tor protocol exception")
+
+        relay_payload_bytes = self.get_decrypted_payload(debug_res[3:])
+        self._verify_digest(self.exit_node, relay_payload_bytes, "backward")
+        relay_payload = unpack_relay_payload(relay_payload_bytes)
+        addr = relay_payload.data[2:6]
+        return addr
+
     def send_relay_begin(self, addr_port):
-        # flags = bytes([0, 0, 0, 1])
-        # relay_data = duck_go_ip + flags
-        relay_data = addr_port
-        relay_payload = RelayPayload(RelayType.RELAY_BEGIN, stream_id=self.stream_id, relay_data=relay_data)
+        cell = self.get_encrypted_relay_cell(RelayType.RELAY_BEGIN, addr_port)
+        cell_buffer = pack_cell(cell)
+
+        self.guard_node.socket.socket.send(cell_buffer)
+
+    def get_encrypted_relay_cell(self, relay_type: RelayType, relay_data: bytes) -> Cell:
+        relay_payload = RelayPayload(relay_type, stream_id=self.stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         self.exit_node.update_digest_forward(relay_payload_buffer)
         relay_payload.digest = self.exit_node.get_digest_forward()[:4]
         relay_payload_buffer = pack_relay_payload(relay_payload)
 
         encrypted_payload = self.get_encrypted_payload(relay_payload_buffer)
-
         cell = Cell(self.circuit_id, CellType.relay, encrypted_payload)
-        cell_buffer = pack_cell(cell)
-
-        self.guard_node.socket.socket.send(cell_buffer)
+        return cell
 
     def get_encrypted_payload(self, relay_payload_buffer):
         encrypted_payload_buffer = relay_payload_buffer
