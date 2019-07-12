@@ -1,6 +1,6 @@
 import socket
 import ssl
-from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, _wrap_tls_socket, create_tls_socket
+from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket
 
 
 class HttpSocket(SocketInfo):
@@ -8,8 +8,8 @@ class HttpSocket(SocketInfo):
     def __init__(self, url: str, host: str, port: int, socket):
         super().__init__(url, host, port, socket)
 
-    def http_get(self):
-        request = bytearray("GET / HTTP/1.1\r\nHost: " + self.host + "\r\n\r\n", "utf8")
+    def http_get(self, path:str):
+        request = bytearray(f"GET {path} HTTP/1.1\r\nHost: {self.host}\r\n\r\n", "utf8")
         self.socket.send(request)
         initial_response = self.socket.recv(1024)
         print(initial_response)
@@ -27,7 +27,7 @@ def create_http_proxy_socket(url, proxyUrl):
     host, _ = _get_host_and_port(url)
     plain_socket = socket.create_connection((proxy_host, proxy_port))
     _http_connect(plain_socket, url)
-    tls_socket = _wrap_tls_socket(plain_socket, host)
+    tls_socket = wrap_tls_socket(plain_socket, host)
     return tls_socket
 
 

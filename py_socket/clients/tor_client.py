@@ -32,7 +32,7 @@ class TorClient:
         self.circuit_id = 60_000
         self.stream_id = 25_000
 
-    def initialize(self):
+    def create_circuit(self):
         self.send_versions()
         self.recv_versions()
         self.recv_certs()
@@ -50,25 +50,6 @@ class TorClient:
         extended2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)
         created2_payload = unpack_created2_payload(extended2_cell.payload[11:])
         self.recv_created2(create_info, created2_payload, self.exit_node)
-
-        # send data
-        # url = "http://www.httpvshttps.com"
-        url = "http://statichostsharp.blob.core.windows.net/misc/rules.json"
-        # url = "107.20.240.232"  # duck duck go
-        # url = "45.33.7.16"  # http vs https
-        url_info = get_url_info(url)
-
-        self.send_relay_resolve(url_info[1])
-        ip_address_bytes = self.recv_relay_resolved()
-        ip_address = ".".join(str(x) for x in ip_address_bytes)
-        addr_port = bytes(f"{ip_address}:{url_info[2]}\x00", "utf8")
-        self.send_relay_begin(addr_port)
-        self.receive_something()
-
-        relay_data = bytes(f"GET {url_info[3]} HTTP/1.1\r\nHost: {url_info[1]}\r\nAccept: */*\r\n\r\n", "utf8")
-        self.send_relay_data(relay_data)
-        res = self.receive_more()
-        print(res)
 
     def send_versions(self):
         versions_payload = VersionsPayload([3])
@@ -220,7 +201,7 @@ class TorClient:
 
         return eph_my_private_key, eph_my_public_key
 
-    def receive_something(self):
+    def receive_relay_connected(self):
         debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
 
         if debug_res[2] == 4:
@@ -228,6 +209,8 @@ class TorClient:
 
         debug_decrypt = self.get_decrypted_payload(debug_res[3:])
         self._verify_digest(self.exit_node, debug_decrypt, "backward")
+        if debug_decrypt[0] != 4:
+            raise Exception("relay connection request was unsuccessful")
         pass
 
     def receive_more(self):

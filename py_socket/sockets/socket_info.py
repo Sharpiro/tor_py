@@ -22,7 +22,7 @@ def _get_host_and_port(url):
     return (host, port)
 
 
-def _wrap_tls_socket(socket, host):
+def wrap_tls_socket(socket, host):
     context = ssl.create_default_context()
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE
@@ -33,7 +33,7 @@ def _wrap_tls_socket(socket, host):
 def create_tls_socket(url):
     host, port = _get_host_and_port(url)
     plain_socket = socket_lib.create_connection((host, port))
-    tls_socket = _wrap_tls_socket(plain_socket, host)
+    tls_socket = wrap_tls_socket(plain_socket, host)
     socket_info = SocketInfo(url, host, port, tls_socket)
     return socket_info
 

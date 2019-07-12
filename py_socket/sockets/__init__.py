@@ -1,1 +1,1 @@
-from py_socket.sockets.socket_info import SocketInfo, create_tls_socket
+from py_socket.sockets.socket_info import SocketInfo, create_tls_socket, wrap_tls_socket
