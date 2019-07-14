@@ -7,8 +7,8 @@ from Crypto.Util import Counter
 
 
 class Node:
-    def __init__(self, url: str, onion_key: str, rsa_signing_key: str, socket: SocketInfo = None):
-        self.url = url
+    def __init__(self, ip_addr: str, onion_key: str, rsa_signing_key: str, socket: SocketInfo = None):
+        self.ip_addr = ip_addr
         # self.onion_key = onion_key
         self.onion_key = base64.b64decode(onion_key)
         self.rsa_signing_key = base64.b64decode(rsa_signing_key)
@@ -56,3 +56,9 @@ class Node:
     def decrypt_backward(self, ciphertext) -> bytes:
         plaintext = self._cipher_backward.decrypt(ciphertext)
         return plaintext
+
+    def to_json(self) -> str:
+        obj = {
+            "a": "a",
+        }
+        return obj
