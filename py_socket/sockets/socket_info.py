@@ -30,11 +30,11 @@ def wrap_tls_socket(socket, host):
     return tls_socket
 
 
-def create_tls_socket(url):
-    host, port = _get_host_and_port(url)
+def create_tls_socket(hostname):
+    host, port = _get_host_and_port(hostname)
     plain_socket = socket_lib.create_connection((host, port))
     tls_socket = wrap_tls_socket(plain_socket, host)
-    socket_info = SocketInfo(url, host, port, tls_socket)
+    socket_info = SocketInfo(hostname, host, port, tls_socket)
     return socket_info
 
 

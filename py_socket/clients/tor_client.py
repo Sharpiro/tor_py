@@ -33,14 +33,19 @@ class TorClient:
         self.stream_id = 25_000
 
     def create_circuit(self):
-        self.send_versions()
+        """
+        Main entry function.
+        """
+        versions_cell = self.create_versions()
+        self.send_cell(versions_cell)
         self.recv_versions()
         self.recv_certs()
         self.recv_auth_challenge()
         self.recv_net_info()
 
         # create first hop
-        create_info = self.send_create2()
+        create2_cell, *create_info = self.create_create2()
+        self.send_cell(create2_cell)
         created2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)
         created2_payload = unpack_created2_payload(created2_cell.payload)
         self.recv_created2(create_info, created2_payload, self.guard_node)
@@ -51,12 +56,20 @@ class TorClient:
         created2_payload = unpack_created2_payload(extended2_cell.payload[11:])
         self.recv_created2(create_info, created2_payload, self.exit_node)
 
-    def send_versions(self):
+    def send_cell(self, cell) -> bytes:
+        if cell.command == CellType.versions:
+            cell_buffer = pack_variable_cell(cell)
+        elif cell.command == CellType.create2:
+            cell_buffer = pack_cell(cell)
+        else:
+            raise Exception("invalid cell type")
+        self.guard_node.socket.socket.send(cell_buffer)
+
+    def create_versions(self) -> VariableCell:
         versions_payload = VersionsPayload([3])
         payload_buffer = pack_versions_payload(versions_payload)
         variable_cell = VariableCell(0, CellType.versions, payload_buffer)
-        variable_cell_buffer = pack_variable_cell(variable_cell)
-        self.guard_node.socket.socket.send(variable_cell_buffer)
+        return variable_cell
 
     def recv_versions(self):
         self.guard_node.buffer = self.guard_node.socket.socket.recv(self.MAX_BUFFER_SIZE)
@@ -100,14 +113,11 @@ class TorClient:
         _ = list(res_cell_buffer)
         self.guard_node.socket.socket.send(res_cell_buffer)
 
-    def send_create2(self):
+    def create_create2(self):
         payload_buffer, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.guard_node)
 
         cell = Cell(self.circuit_id, CellType.create2, payload_buffer)
-        cell_buffer = pack_cell(cell)
-        self.guard_node.socket.socket.send(cell_buffer)
-
-        return eph_my_private_key, eph_my_public_key
+        return cell, eph_my_private_key, eph_my_public_key
 
     def _get_handshake_data(self, node: Node):
         eph_my_private_key = secrets.token_bytes(32)
@@ -130,7 +140,6 @@ class TorClient:
         elif cell_type == CellType.created2:
             pass
         elif cell_type == CellType.relay:
-            # decrypted_payload = self.decrypt(node.key_backward, cell_payload)
             decrypted_payload = node.decrypt_backward(cell_payload)
             self._verify_digest(node, decrypted_payload, "backward")
             cell_buffer = cell_buffer[:3] + decrypted_payload
@@ -170,11 +179,8 @@ class TorClient:
         node.update_digest_forward(digest_forward)
         node.update_digest_backward(digest_backward)
         node.init_ciphers(key_forward, key_backward)
-        # node.key_forward = key_forward
-        # node.key_backward = key_backward
 
     def send_relay_extend2(self):
-
         link_specifiers_count = bytes([2])
         ip_specifier = bytes([0, 6]) + bytes([176, 10, 99, 201]) + bytes([1, 187])
         identity_specifier = bytes([2, 20]) + self.exit_node.server_identity_digest
@@ -193,7 +199,6 @@ class TorClient:
         relay_payload_buffer = pack_relay_payload(relay_payload)
 
         encrypted_payload = self.guard_node.encrypt_forward(relay_payload_buffer)
-        # encrypted_payload = self.encrypt(self.guard_node.key_forward, relay_payload_buffer)
 
         cell = Cell(self.circuit_id, CellType.relay_early, encrypted_payload)
         cell_buffer = pack_cell(cell)
@@ -213,7 +218,7 @@ class TorClient:
             raise Exception("relay connection request was unsuccessful")
         pass
 
-    def receive_more(self):
+    def receive_data(self):
         buffer = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)
 
         if buffer[2] == 4:
