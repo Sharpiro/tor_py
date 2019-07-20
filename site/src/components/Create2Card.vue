@@ -2,7 +2,10 @@
   <div class="card">
     <div class="container">
       <div>
-        <b>{{item.text}}</b>
+        <b>A whole new card2</b>
+      </div>
+      <div>
+        with some custom data here
       </div>
       <button v-on:click="toggle">Toggle</button>
       <p v-if="this.item.showRaw">{{item.rawData}}</p>
@@ -11,7 +14,6 @@
 </template>
 
 <script>
-import TestService from "./TestService.vue";
 export default {
   props: {
     item: Object
@@ -22,6 +24,7 @@ export default {
   methods: {
     toggle: function() {
       this.item.showRaw = !this.item.showRaw;
+      console.log(this.item.showRaw);
     }
   }
 };

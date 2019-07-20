@@ -1,3 +1,5 @@
 !settings.json
 .ropeproject
 *.pyc
+node_modules
+
