@@ -1,42 +1,41 @@
-import { Injectable } from '@angular/core';
-import { Subject, Observable, of, interval } from 'rxjs';
-import { delay, bufferTime, concatMap, throttle } from 'rxjs/operators';
+import { Injectable, Inject, InjectionToken } from '@angular/core';
+import { Subject, Observable, of, ReplaySubject } from 'rxjs';
+import { delay, concatMap } from 'rxjs/operators';
 
+export const SOCKET_URL = new InjectionToken<string>('SocketUrl');
 
 @Injectable({
   providedIn: 'root'
 })
 export class SocketService {
-  webSocket: WebSocket
-  subject: Subject<string>
+  private webSocketSubject: ReplaySubject<WebSocket>
+  private messageSubject = new Subject<string>()
 
-  constructor() {
-    this.webSocket = new WebSocket("ws://127.0.0.1:5678")
-    this.subject = new Subject()
-    this.webSocket.onmessage = (event) => {
-      this.subject.next(event.data)
-    };
+  constructor(@Inject(SOCKET_URL) private hostAndPort: string) { }
 
-    // setTimeout(() => {
-    //   this.webSocket.send(JSON.stringify({
-    //     title: "handshake",
-    //     data: ""
-    //   }))
-    // }, 1000);
+  private get webSocket(): Observable<WebSocket> {
+    if (this.webSocketSubject) return this.webSocketSubject
+
+    this.webSocketSubject = new ReplaySubject<WebSocket>()
+    const webSocket = new WebSocket(`ws://${this.hostAndPort}`)
+    webSocket.onopen = _ => {
+      webSocket.onmessage = event => this.messageSubject.next(event.data)
+      this.webSocketSubject.next(webSocket)
+    }
+    return this.webSocketSubject
   }
 
   getMessages(): Observable<string> {
-    const temp = this.subject.pipe(
+    const temp = this.messageSubject.pipe(
       concatMap(x => of(x).pipe(delay(500)))
     )
     return temp
   }
 
-  sendMessage() {
-    const message = {
-      title: "test",
-      data: "the data"
-    }
-    this.webSocket.send(JSON.stringify(message))
+  sendMessage(title: string, data: string) {
+    this.webSocket.subscribe(webSocket => {
+      const message = { title, data }
+      webSocket.send(JSON.stringify(message))
+    })
   }
 }

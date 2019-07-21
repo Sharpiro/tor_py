@@ -24,10 +24,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    setTimeout(() => {
-      console.log("starting...")
-      // this.messages.push("starting...")
-      this.socketService.sendMessage()
-    }, 1000);
+    console.log("starting...")
+    this.socketService.sendMessage("tor", "the data 1")
   }
 }

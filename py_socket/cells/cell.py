@@ -21,6 +21,15 @@ class Cell:
     def __repr__(self):
         return "(circuit_id: {0}, command: {1}, payload_length: {2}, payload: {3})".format(self.circuit_id, self.command, len(self.payload), list(self.payload))
 
+    def get_serialized_object(self):
+        return {
+            "circuitId": self.circuit_id,
+            "command": self.command.name,
+            "cellType": "cell",
+            "payloadLength": len(self.payload),
+            "rawPayload": list(self.payload),
+        }
+
 
 def unpack_cell(buffer: bytes) -> (Cell, int):
     circuit_id, command = unpack(

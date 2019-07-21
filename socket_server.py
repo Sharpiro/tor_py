@@ -9,51 +9,25 @@ from socket_wrapper import SocketWrapper
 from py_socket.sockets import create_tls_socket
 
 
-# class CustomHandler(logging.Handler):
-#     def __init__(self, socket: SocketWrapper):
-#         self.socket = socket
-
-#     def emit(self, record):
-#         self.socket.websocket.send("test123data")
-#         # print("hello world")
-#         # print(record)
-
-
-# async def time(socket: SocketWrapper, path):
-#     while True:
-#         now = datetime.datetime.utcnow().isoformat() + "Z"
-#         # await socket.websocket.send(now)
-#         await asyncio.sleep(3)
-
-
-async def consumer_handler(socket: SocketWrapper, path):
+async def consumer_handler(socket: SocketWrapper, path: str):
     async for message in socket.websocket:
         obj = json.loads(message)
         print(obj["title"])
         print(obj["data"])
+        print("path", path)
         if obj["title"] == "handshake":
-            await handshake(socket, message)
-        elif obj["title"] == "test":
+            await socket.send_message("handshake", socket.id)
+        elif obj["title"] == "tor":
             await do_tor(socket, message)
 
 
-async def handler(websocket, path):
+async def handler(websocket: websockets.WebSocketServerProtocol, path: str):
     print("user connected...")
     socket = SocketWrapper(websocket)
     consumer_task = asyncio.ensure_future(consumer_handler(socket, path))
-    # producer_task = asyncio.ensure_future(time(socket, path))
     _, pending = await asyncio.wait([consumer_task], return_when=asyncio.FIRST_COMPLETED)
     for task in pending:
         task.cancel()
-
-
-async def handshake(socket: SocketWrapper, message: str):
-    message = {
-        "title": "handshake",
-        "data": socket.id
-    }
-
-    await socket.websocket.send(json.dumps(message))
 
 
 async def do_tor(socket: SocketWrapper, message: str):
