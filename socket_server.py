@@ -8,6 +8,8 @@ from py_socket.clients import TorClient, TorSocketClient, Node
 from socket_wrapper import SocketWrapper
 from py_socket.sockets import create_tls_socket
 
+print("reading file...")
+
 
 async def consumer_handler(socket: SocketWrapper, path: str):
     async for message in socket.websocket:
@@ -41,6 +43,10 @@ async def do_tor(socket: SocketWrapper, message: str):
     await tor_socket_client.start()
 
 
-start_server = websockets.serve(handler, "127.0.0.1", 5678)
+# start_server = websockets.serve(handler, "127.0.0.1", 5678)
+start_server = websockets.serve(handler, "0.0.0.0", 5678)
+print("starting socket server...")
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()
+
+print("do something e z")
