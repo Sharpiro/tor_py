@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  socketHostAndPort: "127.0.0.1:5678"
+  socketHostAndPort: "tor-py.us-east-1.elasticbeanstalk.com"
 };
