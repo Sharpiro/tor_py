@@ -1,6 +1,7 @@
 import { Injectable, Inject, InjectionToken } from '@angular/core';
 import { Subject, Observable, of, ReplaySubject } from 'rxjs';
 import { delay, concatMap } from 'rxjs/operators';
+import { environment } from "../../environments/environment"
 
 export const SOCKET_URL = new InjectionToken<string>('SocketUrl');
 
@@ -17,7 +18,8 @@ export class SocketService {
     if (this.webSocketSubject) return this.webSocketSubject
 
     this.webSocketSubject = new ReplaySubject<WebSocket>()
-    const webSocket = new WebSocket(`ws://${this.hostAndPort}`)
+    const protocol = environment.production ? "wss" : "ws"
+    const webSocket = new WebSocket(`${protocol}://${this.hostAndPort}`)
     webSocket.onopen = _ => {
       webSocket.onmessage = event => this.messageSubject.next(event.data)
       this.webSocketSubject.next(webSocket)
