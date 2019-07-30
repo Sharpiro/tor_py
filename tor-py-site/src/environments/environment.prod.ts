@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  socketHostAndPort: "tor-py.sharpiro.net"
+  socketHostAndPort: "tor-py-services.sharpiro.net"
 };

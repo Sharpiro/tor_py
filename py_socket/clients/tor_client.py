@@ -6,7 +6,7 @@ from py_socket.cells import (
     unpack_versions_payload, unpack_cell, unpack_net_info_payload,
     pack_net_info_payload, NetInfoPayload, Cell, pack_cell, unpack_certs_payload,
     RelayPayload, unpack_relay_payload, pack_relay_payload, unpack_created2_payload,
-    Created2Payload, RelayType
+    Created2Payload, RelayType, NtorHandshakeData
 )
 from py_socket.tools import get_url_info
 from py_socket.clients.node import Node
@@ -36,7 +36,8 @@ class TorClient:
         """
         Main entry function.
         """
-        versions_cell = self.create_versions()
+        versions_payload = self.create_versions_payload()
+        versions_cell = self.create_versions_cell(versions_payload)
         self.send_cell(versions_cell)
         self.recv_versions()
         self.recv_certs()
@@ -44,11 +45,12 @@ class TorClient:
         self.recv_net_info()
 
         # create first hop
-        create2_cell, *create_info = self.create_create2()
+        handshake_data = self.get_ntor_handshake_data(self.guard_node)
+        create2_cell = self.create_create2(handshake_data)
         self.send_cell(create2_cell)
         created2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)
         created2_payload = unpack_created2_payload(created2_cell.payload)
-        self.recv_created2(create_info, created2_payload, self.guard_node)
+        self.recv_created2(handshake_data, created2_payload, self.guard_node)
 
         # create second hop
         create_info = self.send_relay_extend2()
@@ -65,8 +67,11 @@ class TorClient:
             raise Exception("invalid cell type")
         self.guard_node.socket.socket.send(cell_buffer)
 
-    def create_versions(self) -> VariableCell:
+    def create_versions_payload(self) -> VersionsPayload:
         versions_payload = VersionsPayload([3])
+        return versions_payload
+
+    def create_versions_cell(self, versions_payload: VersionsPayload) -> VariableCell:
         payload_buffer = pack_versions_payload(versions_payload)
         variable_cell = VariableCell(0, CellType.versions, payload_buffer)
         return variable_cell
@@ -113,22 +118,19 @@ class TorClient:
         _ = list(res_cell_buffer)
         self.guard_node.socket.socket.send(res_cell_buffer)
 
-    def create_create2(self):
-        payload_buffer, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.guard_node)
+    def create_create2(self, handshake_data: NtorHandshakeData):
+        # handshake_data = self.get_ntor_handshake_data(self.guard_node)
 
-        cell = Cell(self.circuit_id, CellType.create2, payload_buffer)
-        return cell, eph_my_private_key, eph_my_public_key
+        cell = Cell(self.circuit_id, CellType.create2, handshake_data.pack())
+        # return cell, handshake_data.eph_my_private_key, handshake_data.eph_my_public_key
+        return cell
 
-    def _get_handshake_data(self, node: Node):
-        eph_my_private_key = secrets.token_bytes(32)
+    def get_ntor_handshake_data(self, node: Node):
+        eph_my_private_key: bytes = secrets.token_bytes(32)
         eph_my_public_key = scalarmult_base(eph_my_private_key)
-        handshake_data = node.server_identity_digest + node.onion_key + eph_my_public_key
-
-        handshake_type_buffer = bytes([0, 2])  # ntor
-        handshake_length_buffer = bytes([0, len(handshake_data)])
-        payload_buffer = handshake_type_buffer + handshake_length_buffer + handshake_data
-
-        return payload_buffer, eph_my_private_key, eph_my_public_key
+        ntor_handshake_data = NtorHandshakeData(
+            eph_my_private_key, eph_my_public_key, node.server_identity_digest, node.onion_key)
+        return ntor_handshake_data
 
     def recv_cell(self, node: Node, max_size):
         node.buffer = node.socket.socket.recv(max_size)
@@ -151,25 +153,23 @@ class TorClient:
 
         return cell
 
-    def recv_created2(self, create_info, created2_payload: Created2Payload, node: Node):
+    def recv_created2(self, handshake_data: NtorHandshakeData, created2_payload: Created2Payload, node: Node):
         t_mac = self.PROTO_ID + b":mac"
         t_key = self.PROTO_ID + b":key_extract"
         t_verify = self.PROTO_ID + b":verify"
 
-        eph_my_private_key, eph_my_public_key = create_info
-
         eph_server_public_key = created2_payload.eph_server_public_key
 
-        eph_shared_key = scalarmult(eph_my_private_key, eph_server_public_key)
-        long_shared_key = scalarmult(eph_my_private_key, node.onion_key)
+        eph_shared_key = scalarmult(handshake_data.eph_my_private_key, eph_server_public_key)
+        long_shared_key = scalarmult(handshake_data.eph_my_private_key, node.onion_key)
 
         secret_input = (eph_shared_key + long_shared_key + node.server_identity_digest + node.onion_key +
-                        eph_my_public_key + eph_server_public_key + self.PROTO_ID)
+                        handshake_data.eph_my_public_key + eph_server_public_key + self.PROTO_ID)
 
         key_seed = self.hmacSha(secret_input, t_key)
         verify = self.hmacSha(secret_input, t_verify)
         auth_input = (verify + node.server_identity_digest + node.onion_key + eph_server_public_key
-                      + eph_my_public_key + self.PROTO_ID + b"Server")
+                      + handshake_data.eph_my_public_key + self.PROTO_ID + b"Server")
 
         actual_auth = self.hmacSha(auth_input, t_mac)
 
@@ -189,9 +189,9 @@ class TorClient:
         # link_specifiers_bytes = link_specifiers_count + ip_specifier + identity_specifier + temp_spec
         link_specifiers_bytes = link_specifiers_count + ip_specifier + identity_specifier
 
-        handshake_bytes, eph_my_private_key, eph_my_public_key = self._get_handshake_data(self.exit_node)
+        handshake_data = self.get_ntor_handshake_data(self.exit_node)
 
-        relay_data = link_specifiers_bytes + handshake_bytes
+        relay_data = link_specifiers_bytes + handshake_data.pack()
         relay_payload = RelayPayload(RelayType.RELAY_EXTEND2, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         self.guard_node.update_digest_forward(relay_payload_buffer)
@@ -204,7 +204,7 @@ class TorClient:
         cell_buffer = pack_cell(cell)
         self.guard_node.socket.socket.send(cell_buffer)
 
-        return eph_my_private_key, eph_my_public_key
+        return handshake_data.eph_my_private_key, handshake_data.eph_my_public_key
 
     def receive_relay_connected(self):
         debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)

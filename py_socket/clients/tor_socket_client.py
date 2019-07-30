@@ -11,21 +11,36 @@ class TorSocketClient:
 
     async def start(self):
         # initial connection
-        versions_cell = self.tor_client.create_versions()
+        versions_payload = self.tor_client.create_versions_payload()
+        versions_cell = self.tor_client.create_versions_cell(versions_payload)
+        # serialized_cell["payload"] = versions_payload.serialize()
+        send_versions_data = {
+            "cell": versions_cell.serialize(),
+            "payload": versions_payload.serialize()
+        }
         self.tor_client.send_cell(versions_cell)
-        await self.socket_wrapper.send_message("send_versions", versions_cell.get_serialized_object())
+        await self.socket_wrapper.send_message("send_versions", send_versions_data)
         self.tor_client.recv_versions()
         self.tor_client.recv_certs()
         self.tor_client.recv_auth_challenge()
         self.tor_client.recv_net_info()
 
         # create first hop
-        create2_cell, *create_info = self.tor_client.create_create2()
+        handshake_data = self.tor_client.get_ntor_handshake_data(self.tor_client.guard_node)
+        create2_cell = self.tor_client.create_create2(handshake_data)
         self.tor_client.send_cell(create2_cell)
-        await self.socket_wrapper.send_message("send_create2", create2_cell.get_serialized_object())
+        create2_data = {
+            "cell": create2_cell.serialize(),
+            "payload": handshake_data.serialize()
+        }
+        await self.socket_wrapper.send_message("send_create2", create2_data)
         created2_cell = self.tor_client.recv_cell(self.tor_client.guard_node, TorClient.CELL_SIZE)
         # created2_payload = unpack_created2_payload(created2_cell.payload)
-        await self.socket_wrapper.send_message("recv_created2", created2_cell.get_serialized_object())
+        created2_data = {
+            "cell": created2_cell.serialize(),
+            "payload": "created2_payload"
+        }
+        await self.socket_wrapper.send_message("recv_created2", created2_data)
 
         # create second hop
         # create_info = self.tor_client.send_relay_extend2()

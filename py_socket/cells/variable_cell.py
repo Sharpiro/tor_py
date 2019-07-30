@@ -23,12 +23,12 @@ class VariableCell:
     def __repr__(self):
         return "(circuit_id: {0}, command: {1}, payload_length: {2}, payload: {3})".format(self.circuit_id, self.command, self.payload_length, list(self.payload))
 
-    def get_serialized_object(self):
+    def serialize(self) -> dict:
         return {
             "circuitId": self.circuit_id,
             "command": self.command.name,
-            "cellType": "variableCell",
-            "payload_length": self.payload_length,
+            "cellType": "VariableCell",
+            "payloadLength": self.payload_length,
             "rawPayload": list(self.payload),
         }
 

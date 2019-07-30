@@ -1,5 +1,6 @@
 from struct import unpack, pack
 
+
 class VersionsPayload:
     VERSION_SIZE = 2
 
@@ -10,6 +11,11 @@ class VersionsPayload:
 
     def __repr__(self):
         return "(versions: {0})".format(self.versions)
+
+    def serialize(self) -> dict:
+        return {
+            "versions": self.versions
+        }
 
 
 def unpack_versions_payload(buffer: bytes) -> VersionsPayload:
