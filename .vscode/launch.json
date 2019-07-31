@@ -2,11 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File (Integrated Terminal)",
+            "name": "Python: Module",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/socket_server.py",
-            "console": "integratedTerminal"
+            "module": "tor_py_server"
         }
     ]
 }

@@ -1,6 +1,6 @@
 from py_socket.clients.tor_client import TorClient, unpack_created2_payload, get_url_info
 from py_socket.clients.http_generator import HttpGenerator
-from socket_wrapper import SocketWrapper
+from tor_py_server.socket_wrapper import SocketWrapper
 import asyncio
 
 

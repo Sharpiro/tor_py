@@ -14,7 +14,7 @@ import base64
 import hashlib
 import hmac
 import secrets
-from curve25519 import scalarmult, scalarmult_base
+from py_socket.crypto.curve25519 import scalarmult, scalarmult_base
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
 

@@ -4,9 +4,11 @@ import random
 import websockets
 import json
 import uuid
-from py_socket.clients import TorClient, TorSocketClient, Node
-from socket_wrapper import SocketWrapper
+from tor_py_server.socket_wrapper import SocketWrapper
 from py_socket.sockets import create_tls_socket
+from py_socket.clients import Node, TorClient
+from py_socket.cells.payloads import CertType
+from tor_py_server.tor_socket_client import TorSocketClient
 import os
 
 port = os.getenv("PORT")

@@ -1,12 +1,10 @@
 .git
 .vscode
 docs
-socket_client
 tests
 tor-py-site
 .gitignore
 .dockerignore
 Pipfile
 Pipfile.lock
-server.py
 docker.sh
