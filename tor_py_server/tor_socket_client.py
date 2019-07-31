@@ -21,30 +21,43 @@ class TorSocketClient:
         self.tor_client.send_cell(versions_cell)
         await self.socket_wrapper.send_message("send_versions", send_versions_data)
         self.tor_client.recv_versions()
+        # await self.socket_wrapper.send_message("recv_versions", "recv_versions")
         self.tor_client.recv_certs()
+        # await self.socket_wrapper.send_message("recv_certs", "recv_certs")
         self.tor_client.recv_auth_challenge()
+        # await self.socket_wrapper.send_message("recv_auth_challenge", "recv_auth_challenge")
         self.tor_client.recv_net_info()
+        # await self.socket_wrapper.send_message("recv_net_info", "recv_net_info")
 
         # create first hop
-        handshake_data = self.tor_client.get_ntor_handshake_data(self.tor_client.guard_node)
-        create2_cell = self.tor_client.create_create2(handshake_data)
+        create_handshake_data = self.tor_client.get_ntor_handshake_data(self.tor_client.guard_node)
+        create2_cell = self.tor_client.create_create2(create_handshake_data)
         self.tor_client.send_cell(create2_cell)
         create2_data = {
             "cell": create2_cell.serialize(),
-            "payload": handshake_data.serialize()
+            "handshakeData": create_handshake_data.serialize()
         }
         await self.socket_wrapper.send_message("send_create2", create2_data)
+
         created2_cell = self.tor_client.recv_cell(self.tor_client.guard_node, TorClient.CELL_SIZE)
-        # created2_payload = unpack_created2_payload(created2_cell.payload)
+        created2_payload = unpack_created2_payload(created2_cell.payload)
+        self.tor_client.process_created2(create_handshake_data, created2_payload, self.tor_client.guard_node)
         created2_data = {
             "cell": created2_cell.serialize(),
-            "payload": "created2_payload"
+            "payload": created2_payload.serialize()
         }
         await self.socket_wrapper.send_message("recv_created2", created2_data)
 
-        # create second hop
-        # create_info = self.tor_client.send_relay_extend2()
-        # await self.socket_wrapper.websocket.send("Sent relay extend2 cell")
+        # # create second hop
+        # extend_handshake_data = self.tor_client.get_ntor_handshake_data(self.tor_client.guard_node)
+        # extend_cell = self.tor_client.create_relay_extend2_cell(extend_handshake_data)
+        # self.tor_client.send_cell(extend_cell)
+        # extend2_data = {
+        #     "cell": extend_cell.serialize(),
+        #     "handshakeData": extend_handshake_data.serialize()
+        # }
+        # await self.socket_wrapper.send_message("send_extend2", extend2_data)
+
         # extended2_cell = self.tor_client.recv_cell(self.tor_client.guard_node, TorClient.CELL_SIZE)
         # await self.socket_wrapper.websocket.send("Received relay extended2 cell")
         # created2_payload = unpack_created2_payload(extended2_cell.payload[11:])

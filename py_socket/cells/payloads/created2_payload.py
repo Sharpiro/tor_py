@@ -14,6 +14,12 @@ class Created2Payload:
         self.eph_server_public_key = eph_server_public_key
         self.server_auth = server_auth
 
+    def serialize(self):
+        return {
+            "ephServerPublicKey": list(self.eph_server_public_key),
+            "serverAuth": list(self.server_auth)
+        }
+
 
 def unpack_created2_payload(buffer: bytes) -> Created2Payload:
     actual_handshake_length, *_ = unpack(">H", buffer[:2])
