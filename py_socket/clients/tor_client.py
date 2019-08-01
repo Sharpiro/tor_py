@@ -53,7 +53,7 @@ class TorClient:
         self.process_created2(create_handshake_data, created2_payload, self.guard_node)
 
         # create second hop
-        extend_handshake_data = self.get_ntor_handshake_data(self.guard_node)
+        extend_handshake_data = self.get_ntor_handshake_data(self.exit_node)
         extend_cell = self.create_relay_extend2_cell(extend_handshake_data)
         self.send_cell(extend_cell)
         extended2_cell = self.recv_cell(self.guard_node, TorClient.CELL_SIZE)

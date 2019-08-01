@@ -12,3 +12,11 @@
   .container {
     padding: 10px 10px 10px 10px;
   }
+
+  .buttons{
+    padding-top:15px;
+  }
+
+.rawPayload{
+  padding-top:15px;
+}

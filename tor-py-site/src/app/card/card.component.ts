@@ -1,32 +1,31 @@
 import { Component, OnInit, ViewChild, Directive, ViewContainerRef, Input, ComponentFactoryResolver } from '@angular/core';
 import { Type } from '@angular/core';
+import { Message } from '../services/socket.service';
 
-export interface AdComponent {
+export interface CommandComponent {
   data: any;
 }
 
-@Component({
-  template: `<div>{{data.data}}</div>`
-})
-export class Test1Component implements AdComponent {
-  @Input() data: any;
+export class TorComponent {
+  constructor(public component: Type<any>, public message: Message) { }
 }
 
 @Component({
-  template: `<div>Test2</div><div>{{data.type}}: {{data.temp}}</div><div>abc123</div>`
+  template: '<div>{{stringData}}</div>'
 })
-export class Test2Component implements AdComponent {
-  @Input() data: any;
-}
+export class GenericComponent implements CommandComponent, OnInit {
+  data: any;
+  stringData: string
 
-export class AdItem {
-  constructor(public component: Type<any>, public data: any) { }
+  ngOnInit(): void {
+    this.stringData = JSON.stringify(this.data)
+  }
 }
 
 @Directive({
-  selector: '[appAdHost]',
+  selector: '[appTorComponentHost]',
 })
-export class AdDirective {
+export class TorComponentDirective {
   constructor(public viewContainerRef: ViewContainerRef) { }
 }
 
@@ -36,23 +35,29 @@ export class AdDirective {
   styleUrls: ['./card.component.css']
 })
 export class CardComponent implements OnInit {
-  @ViewChild(AdDirective, { static: true }) adHost: AdDirective;
-  @Input() type: any;
+  @ViewChild(TorComponentDirective, { static: true }) torComponentHost: TorComponentDirective;
+  @Input() torComponent: TorComponent;
+  private showRawPayload = false
+
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
   ngOnInit() {
     this.loadChild()
   }
 
+  toggleRawPayload() {
+    this.showRawPayload = !this.showRawPayload
+  }
+
   loadChild() {
-    const adItem = this.type;
+    const torComponent = this.torComponent;
 
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(adItem.component);
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(torComponent.component);
 
-    const viewContainerRef = this.adHost.viewContainerRef;
+    const viewContainerRef = this.torComponentHost.viewContainerRef;
     viewContainerRef.clear();
 
     const componentRef = viewContainerRef.createComponent(componentFactory);
-    (componentRef.instance as AdComponent).data = adItem.data;
+    (componentRef.instance as CommandComponent).data = torComponent.message.data;
   }
 }

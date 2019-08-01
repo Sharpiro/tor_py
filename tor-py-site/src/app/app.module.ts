@@ -4,21 +4,22 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { Create2Component } from './create2/create2.component';
 import { Created2Component } from './created2/created2.component';
-import { CardComponent, AdDirective, Test1Component, Test2Component } from './card/card.component';
+import { CardComponent, TorComponentDirective, GenericComponent } from './card/card.component';
 import { SOCKET_URL } from './services/socket.service';
 import { environment } from 'src/environments/environment';
+import { SendVersionsComponent } from './send-versions/send-versions.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    Create2Component,
     Created2Component,
     CardComponent,
-    AdDirective,
-    Test1Component,
-    Test2Component
+    TorComponentDirective,
+    SendVersionsComponent,
+    Create2Component,
+    GenericComponent
   ],
-  entryComponents: [Test1Component, Test2Component],
+  entryComponents: [SendVersionsComponent, Create2Component, GenericComponent],
   imports: [
     BrowserModule,
     AppRoutingModule
