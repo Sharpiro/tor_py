@@ -1,34 +1,23 @@
 import { Component, OnInit } from '@angular/core';
+import { Create2Data } from '../create2/create2.component';
 import { Buffer } from "buffer"
 
 @Component({
-  selector: 'app-create2',
-  templateUrl: './create2.component.html',
-  styleUrls: ['./create2.component.css']
+  selector: 'app-extend2',
+  templateUrl: './extend2.component.html',
+  styleUrls: ['./extend2.component.css']
 })
-export class Create2Component implements OnInit {
+export class Extend2Component implements OnInit {
   data: Create2Data;
   ephMyPrivateKey: string
   ephMyPublicKey: string
   serverIdentityDigest: string
   onionKey: string
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.ephMyPrivateKey = Buffer.from(this.data.handshakeData.ephMyPrivateKey).toString("hex")
     this.ephMyPublicKey = Buffer.from(this.data.handshakeData.ephMyPublicKey).toString("hex")
     this.serverIdentityDigest = Buffer.from(this.data.handshakeData.serverIdentityDigest).toString("hex")
     this.onionKey = Buffer.from(this.data.handshakeData.onionKey).toString("base64")
   }
-}
-
-export interface Create2Data {
-  handshakeData: HandshakeData
-}
-
-export interface HandshakeData {
-  handshakeType: number
-  ephMyPrivateKey: number[]
-  ephMyPublicKey: number[]
-  serverIdentityDigest: number[]
-  onionKey: number[]
 }

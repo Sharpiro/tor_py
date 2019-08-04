@@ -8,6 +8,8 @@ import { CardComponent, TorComponentDirective, GenericComponent } from './card/c
 import { SOCKET_URL } from './services/socket.service';
 import { environment } from 'src/environments/environment';
 import { SendVersionsComponent } from './send-versions/send-versions.component';
+import { Extend2Component } from './extend2/extend2.component';
+import { Extended2Component } from './extended2/extended2.component';
 
 @NgModule({
   declarations: [
@@ -17,9 +19,18 @@ import { SendVersionsComponent } from './send-versions/send-versions.component';
     TorComponentDirective,
     SendVersionsComponent,
     Create2Component,
-    GenericComponent
+    GenericComponent,
+    Extend2Component,
+    Extended2Component
   ],
-  entryComponents: [SendVersionsComponent, Create2Component, GenericComponent],
+  entryComponents: [
+    SendVersionsComponent,
+    Create2Component,
+    GenericComponent,
+    Created2Component,
+    Extend2Component,
+    Extended2Component
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule

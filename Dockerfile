@@ -4,4 +4,4 @@ COPY . /app
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 ENV PORT 80
 EXPOSE 80
-CMD ["python", "socket_server.py"]
+CMD ["python", "-m", "tor_py_server"]

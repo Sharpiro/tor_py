@@ -1,0 +1,393 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A24	../py_socket/crypto/curve25519.py	/^A24 = 121665$/;"	kind:variable	line:15
+ADDRESS_LENGTH_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    ADDRESS_LENGTH_SIZE = 1$/;"	kind:variable	line:7
+ADDRESS_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    ADDRESS_SIZE = 4$/;"	kind:variable	line:8
+ADDRESS_TYPE_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    ADDRESS_TYPE_SIZE = 1$/;"	kind:variable	line:6
+AES	../py_socket/clients/node.py	/^from Crypto.Cipher import AES$/;"	kind:namespace	line:4
+AES	../py_socket/clients/tor_client.py	/^from Crypto.Cipher import AES$/;"	kind:namespace	line:18
+AESCipher	../py_socket/clients/node.py	/^from Crypto.Cipher.AES import AESCipher$/;"	kind:namespace	line:5
+CELL_SIZE	../py_socket/clients/tor_client.py	/^    CELL_SIZE = 512$/;"	kind:variable	line:25
+CERT_HEADER_SIZE	../py_socket/cells/payloads/certs_payload.py	/^    CERT_HEADER_SIZE = CERT_TYPE_SIZE + CERT_LENGTH_SIZE$/;"	kind:variable	line:17
+CERT_LENGTH_SIZE	../py_socket/cells/payloads/certs_payload.py	/^    CERT_LENGTH_SIZE = 2$/;"	kind:variable	line:16
+CERT_TYPE_SIZE	../py_socket/cells/payloads/certs_payload.py	/^    CERT_TYPE_SIZE = 1$/;"	kind:variable	line:15
+CIRCUIT_ID_SIZE	../py_socket/cells/cell.py	/^    CIRCUIT_ID_SIZE = 2$/;"	kind:variable	line:6
+CIRCUIT_ID_SIZE	../py_socket/cells/variable_cell.py	/^    CIRCUIT_ID_SIZE = 2$/;"	kind:variable	line:6
+CIRCUIT_ID_SIZE	../py_socket/clients/tor_client.py	/^    CIRCUIT_ID_SIZE = 2$/;"	kind:variable	line:23
+COMMAND_SIZE	../py_socket/cells/cell.py	/^    COMMAND_SIZE = 1$/;"	kind:variable	line:7
+COMMAND_SIZE	../py_socket/cells/variable_cell.py	/^    COMMAND_SIZE = 1$/;"	kind:variable	line:7
+Cell	../py_socket/cells/__init__.py	/^from py_socket.cells.cell import Cell, pack_cell, unpack_cell$/;"	kind:namespace	line:4
+Cell	../py_socket/cells/cell.py	/^class Cell:$/;"	kind:class	line:5
+CellType	../py_socket/cells/__init__.py	/^from py_socket.cells.cell_type import CellType$/;"	kind:namespace	line:6
+CellType	../py_socket/cells/cell.py	/^from py_socket.cells.cell_type import CellType$/;"	kind:namespace	line:2
+CellType	../py_socket/cells/cell_type.py	/^class CellType(Enum):$/;"	kind:class	line:4
+CellType	../py_socket/cells/variable_cell.py	/^from py_socket.cells.cell_type import CellType$/;"	kind:namespace	line:2
+CellType	../tests/variable_cell/tests.py	/^from py_socket.cells import CellType, VariableCell, pack_variable_cell, unpack_variable_cell$/;"	kind:namespace	line:2
+Cert	../py_socket/cells/payloads/certs_payload.py	/^class Cert:$/;"	kind:class	line:5
+CertType	../py_socket/cells/payloads/cert_type.py	/^class CertType(Enum):$/;"	kind:class	line:4
+CertType	../py_socket/cells/payloads/certs_payload.py	/^from py_socket.cells.payloads.cert_type import CertType$/;"	kind:namespace	line:2
+CertType	../tor_py_server/__main__.py	/^from py_socket.cells.payloads import CertType$/;"	kind:namespace	line:10
+CertsPayload	../py_socket/cells/payloads/certs_payload.py	/^class CertsPayload:$/;"	kind:class	line:13
+CertsPayload	../tests/cells_payload/tests.py	/^from py_socket.cells import CertsPayload, unpack_certs_payload$/;"	kind:namespace	line:2
+Counter	../py_socket/clients/node.py	/^from Crypto.Util import Counter$/;"	kind:namespace	line:6
+Counter	../py_socket/clients/tor_client.py	/^from Crypto.Util import Counter$/;"	kind:namespace	line:19
+Created2Payload	../py_socket/cells/payloads/created2_payload.py	/^class Created2Payload:$/;"	kind:class	line:4
+DATA_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    DATA_SIZE = (PAYLOAD_LEN - (RELAY_COMMAND_SIZE + RECOGNIZED_SIZE +$/;"	kind:variable	line:12
+DIGEST_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    DIGEST_SIZE = 4$/;"	kind:variable	line:10
+Enum	../py_socket/cells/cell_type.py	/^from enum import Enum$/;"	kind:namespace	line:1
+Enum	../py_socket/cells/payloads/cert_type.py	/^from enum import Enum$/;"	kind:namespace	line:1
+Enum	../py_socket/cells/relay_type.py	/^from enum import Enum$/;"	kind:namespace	line:1
+ErrorCode	../py_socket/cells/cell_type.py	/^class ErrorCode(Enum):$/;"	kind:class	line:16
+HEADER_SIZE	../py_socket/cells/cell.py	/^    HEADER_SIZE = CIRCUIT_ID_SIZE + COMMAND_SIZE$/;"	kind:variable	line:8
+HEADER_SIZE	../py_socket/cells/variable_cell.py	/^    HEADER_SIZE = CIRCUIT_ID_SIZE + COMMAND_SIZE + PAYLOAD_LENGTH_SIZE$/;"	kind:variable	line:9
+HttpGenerator	../main.py	/^from py_socket.clients import TorClient, Node, HttpGenerator, RouterService$/;"	kind:namespace	line:7
+HttpGenerator	../py_socket/clients/__init__.py	/^from py_socket.clients.http_generator import HttpGenerator$/;"	kind:namespace	line:3
+HttpGenerator	../py_socket/clients/http_generator.py	/^class HttpGenerator():$/;"	kind:class	line:4
+HttpGenerator	../tor_py_server/tor_socket_client.py	/^from py_socket.clients.http_generator import HttpGenerator$/;"	kind:namespace	line:2
+HttpSocket	../py_socket/clients/http_client.py	/^class HttpSocket(SocketInfo):$/;"	kind:class	line:6
+KEY_SIZE	../py_socket/cells/payloads/created2_payload.py	/^    KEY_SIZE = 32$/;"	kind:variable	line:6
+LENGTH_SIZE	../py_socket/cells/payloads/created2_payload.py	/^    LENGTH_SIZE = 2$/;"	kind:variable	line:5
+LENGTH_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    LENGTH_SIZE = 2$/;"	kind:variable	line:11
+MAX_BUFFER_SIZE	../py_socket/clients/tor_client.py	/^    MAX_BUFFER_SIZE = 5000$/;"	kind:variable	line:24
+MajorVersion	../py_socket/crypto/curve25519.py	/^MajorVersion = sys.version_info.major$/;"	kind:variable	line:7
+NUMBER_OF_CERTS_SIZE	../py_socket/cells/payloads/certs_payload.py	/^    NUMBER_OF_CERTS_SIZE = 1$/;"	kind:variable	line:14
+NUMBER_OF_MY_ADDRESSES_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    NUMBER_OF_MY_ADDRESSES_SIZE = 1$/;"	kind:variable	line:9
+NetInfoPayload	../py_socket/cells/payloads/net_info_payload.py	/^class NetInfoPayload:$/;"	kind:class	line:4
+NetInfoPayload	../tests/net_info_payload/tests.py	/^from py_socket.cells import NetInfoPayload, unpack_net_info_payload$/;"	kind:namespace	line:2
+NetInfoPayloadTests	../tests/cells_payload/tests.py	/^class NetInfoPayloadTests(TestCase):$/;"	kind:class	line:5
+NetInfoPayloadTests	../tests/net_info_payload/tests.py	/^class NetInfoPayloadTests(TestCase):$/;"	kind:class	line:5
+NetInfoPayloadTests	../tests/tools/url_helper_tests.py	/^class NetInfoPayloadTests(TestCase):$/;"	kind:class	line:5
+Node	../main.py	/^from py_socket.clients import TorClient, Node, HttpGenerator, RouterService$/;"	kind:namespace	line:7
+Node	../py_socket/clients/__init__.py	/^from py_socket.clients.node import Node$/;"	kind:namespace	line:2
+Node	../py_socket/clients/node.py	/^class Node:$/;"	kind:class	line:9
+Node	../py_socket/clients/tor_client.py	/^from py_socket.clients.node import Node$/;"	kind:namespace	line:12
+Node	../tor_py_server/__main__.py	/^from py_socket.clients import Node, TorClient$/;"	kind:namespace	line:9
+NtorHandshakeData	../py_socket/cells/payloads/ntor_handshake_data.py	/^class NtorHandshakeData:$/;"	kind:class	line:1
+P	../py_socket/crypto/curve25519.py	/^P = 2 ** 255 - 19$/;"	kind:variable	line:14
+PAYLOAD_LEN	../py_socket/cells/payloads/relay_payload.py	/^    PAYLOAD_LEN = 509$/;"	kind:variable	line:6
+PAYLOAD_LENGTH	../py_socket/cells/cell.py	/^    PAYLOAD_LENGTH = 509$/;"	kind:variable	line:9
+PAYLOAD_LENGTH_SIZE	../py_socket/cells/variable_cell.py	/^    PAYLOAD_LENGTH_SIZE = 2$/;"	kind:variable	line:8
+PAYLOAD_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    PAYLOAD_SIZE = (TIMESTAMP_SIZE + ADDRESS_TYPE_SIZE * 2 +$/;"	kind:variable	line:10
+PROTO_ID	../py_socket/clients/tor_client.py	/^    PROTO_ID = b"ntor-curve25519-sha256-1"$/;"	kind:variable	line:26
+RECOGNIZED_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    RECOGNIZED_SIZE = 2$/;"	kind:variable	line:8
+RELAY_BEGIN	../py_socket/cells/relay_type.py	/^    RELAY_BEGIN = 1$/;"	kind:variable	line:5
+RELAY_BEGIN_DIR	../py_socket/cells/relay_type.py	/^    RELAY_BEGIN_DIR = 13$/;"	kind:variable	line:17
+RELAY_COMMAND_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    RELAY_COMMAND_SIZE = 1$/;"	kind:variable	line:7
+RELAY_CONNECTED	../py_socket/cells/relay_type.py	/^    RELAY_CONNECTED = 4$/;"	kind:variable	line:8
+RELAY_DATA	../py_socket/cells/relay_type.py	/^    RELAY_DATA = 2$/;"	kind:variable	line:6
+RELAY_DROP	../py_socket/cells/relay_type.py	/^    RELAY_DROP = 10$/;"	kind:variable	line:14
+RELAY_END	../py_socket/cells/relay_type.py	/^    RELAY_END = 3$/;"	kind:variable	line:7
+RELAY_EXTEND	../py_socket/cells/relay_type.py	/^    RELAY_EXTEND = 6$/;"	kind:variable	line:10
+RELAY_EXTEND2	../py_socket/cells/relay_type.py	/^    RELAY_EXTEND2 = 14$/;"	kind:variable	line:18
+RELAY_EXTENDED	../py_socket/cells/relay_type.py	/^    RELAY_EXTENDED = 7$/;"	kind:variable	line:11
+RELAY_EXTENDED2	../py_socket/cells/relay_type.py	/^    RELAY_EXTENDED2 = 15$/;"	kind:variable	line:19
+RELAY_RESOLVE	../py_socket/cells/relay_type.py	/^    RELAY_RESOLVE = 11$/;"	kind:variable	line:15
+RELAY_RESOLVED	../py_socket/cells/relay_type.py	/^    RELAY_RESOLVED = 12$/;"	kind:variable	line:16
+RELAY_SENDME	../py_socket/cells/relay_type.py	/^    RELAY_SENDME = 5$/;"	kind:variable	line:9
+RELAY_TRUNCATE	../py_socket/cells/relay_type.py	/^    RELAY_TRUNCATE = 8$/;"	kind:variable	line:12
+RELAY_TRUNCATED	../py_socket/cells/relay_type.py	/^    RELAY_TRUNCATED = 9$/;"	kind:variable	line:13
+RelayPayload	../py_socket/cells/payloads/relay_payload.py	/^class RelayPayload:$/;"	kind:class	line:5
+RelayType	../py_socket/cells/__init__.py	/^from py_socket.cells.relay_type import RelayType$/;"	kind:namespace	line:7
+RelayType	../py_socket/cells/payloads/relay_payload.py	/^from py_socket.cells.relay_type import RelayType$/;"	kind:namespace	line:2
+RelayType	../py_socket/cells/relay_type.py	/^class RelayType(Enum):$/;"	kind:class	line:4
+RouterService	../main.py	/^from py_socket.clients import TorClient, Node, HttpGenerator, RouterService$/;"	kind:namespace	line:7
+RouterService	../py_socket/clients/__init__.py	/^from py_socket.clients.router_service import RouterService/;"	kind:namespace	line:4
+RouterService	../py_socket/clients/router_service.py	/^class RouterService:$/;"	kind:class	line:4
+STREAM_ID_SIZE	../py_socket/cells/payloads/relay_payload.py	/^    STREAM_ID_SIZE = 2$/;"	kind:variable	line:9
+SocketInfo	../py_socket/clients/http_client.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:3
+SocketInfo	../py_socket/clients/http_generator.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:1
+SocketInfo	../py_socket/clients/node.py	/^from py_socket.sockets import SocketInfo$/;"	kind:namespace	line:1
+SocketInfo	../py_socket/clients/tor_client.py	/^from py_socket.sockets import SocketInfo$/;"	kind:namespace	line:2
+SocketInfo	../py_socket/sockets/__init__.py	/^from py_socket.sockets.socket_info import SocketInfo, create_tls_socket, wrap_tls_socket/;"	kind:namespace	line:1
+SocketInfo	../py_socket/sockets/socket_info.py	/^class SocketInfo:$/;"	kind:class	line:5
+SocketWrapper	../tor_py_server/__main__.py	/^from tor_py_server.socket_wrapper import SocketWrapper$/;"	kind:namespace	line:7
+SocketWrapper	../tor_py_server/socket_wrapper.py	/^class SocketWrapper:$/;"	kind:class	line:6
+SocketWrapper	../tor_py_server/tor_socket_client.py	/^from tor_py_server.socket_wrapper import SocketWrapper$/;"	kind:namespace	line:3
+TIMESTAMP_SIZE	../py_socket/cells/payloads/net_info_payload.py	/^    TIMESTAMP_SIZE = 4$/;"	kind:variable	line:5
+TestCase	../tests/cells_payload/tests.py	/^from unittest import TestCase$/;"	kind:namespace	line:1
+TestCase	../tests/net_info_payload/tests.py	/^from unittest import TestCase$/;"	kind:namespace	line:1
+TestCase	../tests/tools/url_helper_tests.py	/^from unittest import TestCase$/;"	kind:namespace	line:1
+TestCase	../tests/variable_cell/tests.py	/^from unittest import TestCase$/;"	kind:namespace	line:1
+TestCase	../tests/versions_payload/tests.py	/^from unittest import TestCase$/;"	kind:namespace	line:1
+TorClient	../main.py	/^from py_socket.clients import TorClient, Node, HttpGenerator, RouterService$/;"	kind:namespace	line:7
+TorClient	../py_socket/__init__.py	/^from py_socket.clients import TorClient$/;"	kind:namespace	line:1
+TorClient	../py_socket/clients/__init__.py	/^from py_socket.clients.tor_client import TorClient$/;"	kind:namespace	line:1
+TorClient	../py_socket/clients/tor_client.py	/^class TorClient:$/;"	kind:class	line:22
+TorClient	../tor_py_server/__main__.py	/^from py_socket.clients import Node, TorClient$/;"	kind:namespace	line:9
+TorClient	../tor_py_server/tor_socket_client.py	/^from py_socket.clients.tor_client import TorClient, unpack_created2_payload, get_url_info$/;"	kind:namespace	line:1
+TorSocketClient	../tor_py_server/__main__.py	/^from tor_py_server.tor_socket_client import TorSocketClient$/;"	kind:namespace	line:11
+TorSocketClient	../tor_py_server/tor_socket_client.py	/^class TorSocketClient:$/;"	kind:class	line:7
+UrlInfo	../py_socket/tools/url_helper.py	/^UrlInfo = namedtuple('UrlInfo', 'protocol, hostname, port, path')$/;"	kind:variable	line:3
+VERSION_SIZE	../py_socket/cells/payloads/versions_payload.py	/^    VERSION_SIZE = 2$/;"	kind:variable	line:5
+VariableCell	../py_socket/cells/variable_cell.py	/^class VariableCell:$/;"	kind:class	line:5
+VariableCell	../tests/variable_cell/tests.py	/^from py_socket.cells import CellType, VariableCell, pack_variable_cell, unpack_variable_cell$/;"	kind:namespace	line:2
+VariableCellTests	../tests/variable_cell/tests.py	/^class VariableCellTests(TestCase):$/;"	kind:class	line:5
+VersionsPayload	../py_socket/cells/payloads/versions_payload.py	/^class VersionsPayload:$/;"	kind:class	line:4
+VersionsPayload	../tests/versions_payload/tests.py	/^from py_socket.cells import VersionsPayload, pack_versions_payload, unpack_versions_payload$/;"	kind:namespace	line:2
+VersionsPayloadTests	../tests/versions_payload/tests.py	/^class VersionsPayloadTests(TestCase):$/;"	kind:class	line:4
+X25519	../py_socket/crypto/curve25519.py	/^def X25519(k, u):$/;"	kind:function	line:27
+__all__	../py_socket/crypto/curve25519.py	/^__all__ = ['scalarmult', 'scalarmult_base']$/;"	kind:variable	line:9
+__init__	../py_socket/cells/cell.py	/^    def __init__(self, circuit_id: int, command: CellType, payload: bytes):$/;"	kind:member	line:16
+__init__	../py_socket/cells/payloads/certs_payload.py	/^    def __init__(self, cert_type: CertType, certificate: bytes):$/;"	kind:member	line:7
+__init__	../py_socket/cells/payloads/certs_payload.py	/^    def __init__(self, certs: list = []):$/;"	kind:member	line:19
+__init__	../py_socket/cells/payloads/created2_payload.py	/^    def __init__($/;"	kind:member	line:8
+__init__	../py_socket/cells/payloads/net_info_payload.py	/^    def __init__($/;"	kind:member	line:14
+__init__	../py_socket/cells/payloads/ntor_handshake_data.py	/^    def __init__(self, eph_my_private_key: bytes, eph_my_public_key: bytes, server_identity_digest: bytes, onion_key: bytes):$/;"	kind:member	line:2
+__init__	../py_socket/cells/payloads/relay_payload.py	/^    def __init__($/;"	kind:member	line:15
+__init__	../py_socket/cells/payloads/versions_payload.py	/^    def __init__(self, versions: list):$/;"	kind:member	line:9
+__init__	../py_socket/cells/variable_cell.py	/^    def __init__(self, circuit_id: int, command: CellType, payload: bytes):$/;"	kind:member	line:17
+__init__	../py_socket/clients/http_client.py	/^    def __init__(self, url: str, host: str, port: int, socket):$/;"	kind:member	line:8
+__init__	../py_socket/clients/http_generator.py	/^    def __init__(self, host: str):$/;"	kind:member	line:6
+__init__	../py_socket/clients/node.py	/^    def __init__(self, ip_addr: str, onion_key: str, rsa_signing_key: str, socket: SocketInfo = None):$/;"	kind:member	line:10
+__init__	../py_socket/clients/router_service.py	/^    def __init__(self, ip_addr):$/;"	kind:member	line:6
+__init__	../py_socket/clients/tor_client.py	/^    def __init__(self, guard_node: Node, exit_node: Node):$/;"	kind:member	line:28
+__init__	../py_socket/sockets/socket_info.py	/^    def __init__(self, url: str, host: str, port: int, socket: socket_lib.socket):$/;"	kind:member	line:11
+__init__	../tor_py_server/socket_wrapper.py	/^    def __init__(self, websocket: websockets.WebSocketServerProtocol, id=""):$/;"	kind:member	line:7
+__init__	../tor_py_server/tor_socket_client.py	/^    def __init__(self, tor_client: TorClient, socket_wrapper: SocketWrapper):$/;"	kind:member	line:8
+__init__.py	../py_socket/__init__.py	1;"	kind:file	line:1
+__init__.py	../py_socket/cells/__init__.py	1;"	kind:file	line:1
+__init__.py	../py_socket/cells/payloads/__init__.py	1;"	kind:file	line:1
+__init__.py	../py_socket/clients/__init__.py	1;"	kind:file	line:1
+__init__.py	../py_socket/sockets/__init__.py	1;"	kind:file	line:1
+__init__.py	../py_socket/tools/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/cells_payload/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/net_info_payload/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/tools/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/variable_cell/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/versions_payload/__init__.py	1;"	kind:file	line:1
+__main__.py	../tor_py_server/__main__.py	1;"	kind:file	line:1
+__repr__	../py_socket/cells/cell.py	/^    def __repr__(self):$/;"	kind:member	line:21
+__repr__	../py_socket/cells/payloads/certs_payload.py	/^    def __repr__(self):$/;"	kind:member	line:22
+__repr__	../py_socket/cells/payloads/net_info_payload.py	/^    def __repr__(self):$/;"	kind:member	line:34
+__repr__	../py_socket/cells/payloads/versions_payload.py	/^    def __repr__(self):$/;"	kind:member	line:12
+__repr__	../py_socket/cells/variable_cell.py	/^    def __repr__(self):$/;"	kind:member	line:23
+_compute_keys	../py_socket/clients/tor_client.py	/^    def _compute_keys(self, key_seed):$/;"	kind:member	line:322
+_get_host_and_port	../py_socket/clients/http_client.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:3
+_get_host_and_port	../py_socket/clients/http_generator.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:1
+_get_host_and_port	../py_socket/sockets/socket_info.py	/^def _get_host_and_port(url):$/;"	kind:function	line:18
+_http_connect	../py_socket/clients/http_client.py	/^def _http_connect(proxy_socket, url):$/;"	kind:function	line:34
+_index_of	../py_socket/tools/url_helper.py	/^def _index_of(data: str, search: str):$/;"	kind:function	line:26
+_verify_digest	../py_socket/clients/tor_client.py	/^    def _verify_digest(self, node, data, direction):$/;"	kind:member	line:254
+addr_port	../main.py	/^addr_port = bytes(f"{ip_address}:{url_info.port}\\x00", "utf8")$/;"	kind:variable	line:29
+asyncio	../tor_py_server/__main__.py	/^import asyncio$/;"	kind:namespace	line:1
+asyncio	../tor_py_server/tor_socket_client.py	/^import asyncio$/;"	kind:namespace	line:4
+auth_challenge	../py_socket/cells/cell_type.py	/^    auth_challenge = 130$/;"	kind:variable	line:13
+base64	../py_socket/clients/node.py	/^import base64$/;"	kind:namespace	line:3
+base64	../py_socket/clients/tor_client.py	/^import base64$/;"	kind:namespace	line:13
+base64	../tests/cells_payload/tests.py	/^import base64$/;"	kind:namespace	line:3
+cell.py	../py_socket/cells/cell.py	1;"	kind:file	line:1
+cell_type.py	../py_socket/cells/cell_type.py	1;"	kind:file	line:1
+cert_type.py	../py_socket/cells/payloads/cert_type.py	1;"	kind:file	line:1
+certs	../py_socket/cells/cell_type.py	/^    certs = 129$/;"	kind:variable	line:12
+certs_payload.py	../py_socket/cells/payloads/certs_payload.py	1;"	kind:file	line:1
+clamp	../py_socket/crypto/curve25519.py	/^def clamp(n):$/;"	kind:function	line:109
+client	../py_socket/clients/router_service.py	/^import http.client$/;"	kind:namespace	line:1
+connectfailed	../py_socket/cells/cell_type.py	/^    connectfailed = 6$/;"	kind:variable	line:29
+consumer_handler	../tor_py_server/__main__.py	/^async def consumer_handler(socket: SocketWrapper, path: str):$/;"	kind:function	line:19
+create2	../py_socket/cells/cell_type.py	/^    create2 = 10$/;"	kind:variable	line:10
+create_circuit	../py_socket/clients/tor_client.py	/^    def create_circuit(self):$/;"	kind:member	line:35
+create_create2	../py_socket/clients/tor_client.py	/^    def create_create2(self, handshake_data: NtorHandshakeData):$/;"	kind:member	line:125
+create_get_request	../py_socket/clients/http_generator.py	/^    def create_get_request(self, path: str):$/;"	kind:member	line:9
+create_http_proxy_socket	../py_socket/clients/http_client.py	/^def create_http_proxy_socket(url, proxyUrl):$/;"	kind:function	line:25
+create_http_socket	../py_socket/clients/http_client.py	/^def create_http_socket(url):$/;"	kind:function	line:19
+create_relay_extend2_cell	../py_socket/clients/tor_client.py	/^    def create_relay_extend2_cell(self, handshake_data: NtorHandshakeData):$/;"	kind:member	line:187
+create_tls_socket	../main.py	/^from py_socket.sockets import create_tls_socket, wrap_tls_socket$/;"	kind:namespace	line:6
+create_tls_socket	../py_socket/clients/http_client.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:3
+create_tls_socket	../py_socket/clients/http_generator.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:1
+create_tls_socket	../py_socket/sockets/__init__.py	/^from py_socket.sockets.socket_info import SocketInfo, create_tls_socket, wrap_tls_socket/;"	kind:namespace	line:1
+create_tls_socket	../py_socket/sockets/socket_info.py	/^def create_tls_socket(hostname):$/;"	kind:function	line:33
+create_tls_socket	../tor_py_server/__main__.py	/^from py_socket.sockets import create_tls_socket$/;"	kind:namespace	line:8
+create_versions_cell	../py_socket/clients/tor_client.py	/^    def create_versions_cell(self, versions_payload: VersionsPayload) -> VariableCell:$/;"	kind:member	line:78
+create_versions_payload	../py_socket/clients/tor_client.py	/^    def create_versions_payload(self) -> VersionsPayload:$/;"	kind:member	line:74
+created2	../py_socket/cells/cell_type.py	/^    created2 = 11$/;"	kind:variable	line:11
+created2_payload.py	../py_socket/cells/payloads/created2_payload.py	1;"	kind:file	line:1
+cswap	../py_socket/crypto/curve25519.py	/^def cswap(swap, x_2, x_3):$/;"	kind:function	line:18
+curve25519.py	../py_socket/crypto/curve25519.py	1;"	kind:file	line:1
+datetime	../tor_py_server/__main__.py	/^import datetime$/;"	kind:namespace	line:2
+decrypt_backward	../py_socket/clients/node.py	/^    def decrypt_backward(self, ciphertext) -> bytes:$/;"	kind:member	line:55
+decrypt_forward	../py_socket/clients/node.py	/^    def decrypt_forward(self, ciphertext) -> bytes:$/;"	kind:member	line:47
+destroy	../py_socket/cells/cell_type.py	/^    destroy = 4$/;"	kind:variable	line:6
+destroyed	../py_socket/cells/cell_type.py	/^    destroyed = 11$/;"	kind:variable	line:39
+do_tor	../tor_py_server/__main__.py	/^async def do_tor(socket: SocketWrapper, message: str):$/;"	kind:function	line:40
+ed25519_id_cert	../py_socket/cells/payloads/cert_type.py	/^    ed25519_id_cert = 2$/;"	kind:variable	line:6
+ed25519_id_signing_cert	../py_socket/cells/payloads/cert_type.py	/^    ed25519_id_signing_cert = 4$/;"	kind:variable	line:8
+ed25519_rsa_x_cert	../py_socket/cells/payloads/cert_type.py	/^    ed25519_rsa_x_cert = 7$/;"	kind:variable	line:11
+ed25519_signing_link_cert	../py_socket/cells/payloads/cert_type.py	/^    ed25519_signing_link_cert = 5$/;"	kind:variable	line:9
+encrypt_backward	../py_socket/clients/node.py	/^    def encrypt_backward(self, plaintext) -> bytes:$/;"	kind:member	line:51
+encrypt_forward	../py_socket/clients/node.py	/^    def encrypt_forward(self, plaintext) -> bytes:$/;"	kind:member	line:43
+exit_node	../main.py	/^exit_node = Node("176.10.99.201", "yOJokRL2ooq99RZPJ04mNDSfQIZtTA78dKp+c096zU0=",$/;"	kind:variable	line:15
+finished	../py_socket/cells/cell_type.py	/^    finished = 9$/;"	kind:variable	line:35
+get_decrypted_payload	../py_socket/clients/tor_client.py	/^    def get_decrypted_payload(self, encrypted_payload_buffer):$/;"	kind:member	line:303
+get_digest_backward	../py_socket/clients/node.py	/^    def get_digest_backward(self) -> bytes:$/;"	kind:member	line:40
+get_digest_forward	../py_socket/clients/node.py	/^    def get_digest_forward(self) -> bytes:$/;"	kind:member	line:34
+get_encrypted_payload	../py_socket/clients/tor_client.py	/^    def get_encrypted_payload(self, relay_payload_buffer):$/;"	kind:member	line:297
+get_encrypted_relay_cell	../py_socket/clients/tor_client.py	/^    def get_encrypted_relay_cell(self, relay_type: RelayType, relay_data: bytes) -> Cell:$/;"	kind:member	line:286
+get_ntor_handshake_data	../py_socket/clients/tor_client.py	/^    def get_ntor_handshake_data(self, node: Node):$/;"	kind:member	line:132
+get_request	../main.py	/^get_request = http_generator.create_get_request(url_info.path)$/;"	kind:variable	line:34
+get_router	../py_socket/clients/router_service.py	/^    def get_router(self):$/;"	kind:member	line:9
+get_routers	../py_socket/clients/router_service.py	/^    def get_routers(self):$/;"	kind:member	line:18
+get_url_info	../main.py	/^from py_socket.tools import get_url_info$/;"	kind:namespace	line:8
+get_url_info	../py_socket/clients/tor_client.py	/^from py_socket.tools import get_url_info$/;"	kind:namespace	line:11
+get_url_info	../py_socket/tools/__init__.py	/^from py_socket.tools.url_helper import get_url_info$/;"	kind:namespace	line:1
+get_url_info	../py_socket/tools/url_helper.py	/^def get_url_info(url: str) -> UrlInfo:$/;"	kind:function	line:6
+get_url_info	../tests/tools/url_helper_tests.py	/^from py_socket.tools.url_helper import get_url_info$/;"	kind:namespace	line:2
+get_url_info	../tor_py_server/tor_socket_client.py	/^from py_socket.clients.tor_client import TorClient, unpack_created2_payload, get_url_info$/;"	kind:namespace	line:1
+guard_node	../main.py	/^guard_node = Node("128.31.0.61", "f+XpLjonwta50\/OeD71k0oFenh2D+rL\/P0f2CxhsbFo=",$/;"	kind:variable	line:13
+handler	../tor_py_server/__main__.py	/^async def handler(websocket: websockets.WebSocketServerProtocol, path: str):$/;"	kind:function	line:31
+hashlib	../py_socket/clients/node.py	/^import hashlib$/;"	kind:namespace	line:2
+hashlib	../py_socket/clients/tor_client.py	/^import hashlib$/;"	kind:namespace	line:14
+hibernating	../py_socket/cells/cell_type.py	/^    hibernating = 4$/;"	kind:variable	line:25
+hmac	../py_socket/clients/tor_client.py	/^import hmac$/;"	kind:namespace	line:15
+hmacSha	../py_socket/clients/tor_client.py	/^    def hmacSha(self, message, key) -> bytes:$/;"	kind:member	line:341
+http	../py_socket/clients/router_service.py	/^import http.client$/;"	kind:namespace	line:1
+http_client.py	../py_socket/clients/http_client.py	1;"	kind:file	line:1
+http_generator	../main.py	/^http_generator = HttpGenerator(url_info.hostname)$/;"	kind:variable	line:33
+http_generator.py	../py_socket/clients/http_generator.py	1;"	kind:file	line:1
+http_get	../py_socket/clients/http_client.py	/^    def http_get(self, path:str):$/;"	kind:member	line:11
+http_url	../main.py	/^http_url = "http:\/\/statichostsharp.blob.core.windows.net\/misc\/tor.txt"$/;"	kind:variable	line:23
+ignore_ed25519_xxxxx	../py_socket/cells/payloads/cert_type.py	/^    ignore_ed25519_xxxxx = 6$/;"	kind:variable	line:10
+ignore_rsa_auth_cert	../py_socket/cells/payloads/cert_type.py	/^    ignore_rsa_auth_cert = 3$/;"	kind:variable	line:7
+ignore_rsa_link_cert	../py_socket/cells/payloads/cert_type.py	/^    ignore_rsa_link_cert = 1$/;"	kind:variable	line:5
+init_ciphers	../py_socket/clients/node.py	/^    def init_ciphers(self, key_forward: str, key_backward: str):$/;"	kind:member	line:25
+internal	../py_socket/cells/cell_type.py	/^    internal = 2$/;"	kind:variable	line:21
+ip_address	../main.py	/^ip_address = ".".join(str(x) for x in ip_address_bytes)$/;"	kind:variable	line:28
+ip_address_bytes	../main.py	/^ip_address_bytes = tor_client.recv_relay_resolved()$/;"	kind:variable	line:27
+json	../tor_py_server/__main__.py	/^import json$/;"	kind:namespace	line:5
+json	../tor_py_server/socket_wrapper.py	/^import json$/;"	kind:namespace	line:3
+main.py	../main.py	1;"	kind:file	line:1
+namedtuple	../py_socket/tools/url_helper.py	/^from collections import namedtuple$/;"	kind:namespace	line:1
+net_info	../py_socket/cells/cell_type.py	/^    net_info = 8$/;"	kind:variable	line:8
+net_info_payload.py	../py_socket/cells/payloads/net_info_payload.py	1;"	kind:file	line:1
+no_such_service	../py_socket/cells/cell_type.py	/^    no_such_service = 12$/;"	kind:variable	line:41
+node.py	../py_socket/clients/node.py	1;"	kind:file	line:1
+none	../py_socket/cells/cell_type.py	/^    none = 0$/;"	kind:variable	line:17
+ntor_handshake_data.py	../py_socket/cells/payloads/ntor_handshake_data.py	1;"	kind:file	line:1
+or_conn_closed	../py_socket/cells/cell_type.py	/^    or_conn_closed = 8$/;"	kind:variable	line:33
+or_identity	../py_socket/cells/cell_type.py	/^    or_identity = 7$/;"	kind:variable	line:31
+os	../tor_py_server/__main__.py	/^import os$/;"	kind:namespace	line:12
+pack	../py_socket/cells/cell.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/payloads/certs_payload.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/payloads/created2_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/payloads/net_info_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/payloads/ntor_handshake_data.py	/^    def pack(self):$/;"	kind:member	line:9
+pack	../py_socket/cells/payloads/relay_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/payloads/versions_payload.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+pack	../py_socket/cells/variable_cell.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+pack	../py_socket/crypto/curve25519.py	/^def pack(n):$/;"	kind:function	line:102
+pack_cell	../py_socket/cells/__init__.py	/^from py_socket.cells.cell import Cell, pack_cell, unpack_cell$/;"	kind:namespace	line:4
+pack_cell	../py_socket/cells/cell.py	/^def pack_cell(cell: Cell) -> bytes:$/;"	kind:function	line:44
+pack_net_info_payload	../py_socket/cells/payloads/net_info_payload.py	/^def pack_net_info_payload(payload: NetInfoPayload) -> bytes:$/;"	kind:function	line:45
+pack_relay_payload	../py_socket/cells/payloads/relay_payload.py	/^def pack_relay_payload(payload: RelayPayload) -> bytes:$/;"	kind:function	line:45
+pack_variable_cell	../py_socket/cells/variable_cell.py	/^def pack_variable_cell(variable_cell: VariableCell) -> bytes:$/;"	kind:function	line:45
+pack_variable_cell	../tests/variable_cell/tests.py	/^from py_socket.cells import CellType, VariableCell, pack_variable_cell, unpack_variable_cell$/;"	kind:namespace	line:2
+pack_versions_payload	../py_socket/cells/payloads/versions_payload.py	/^def pack_versions_payload(versions_payload: VersionsPayload) -> bytes:$/;"	kind:function	line:28
+pack_versions_payload	../tests/versions_payload/tests.py	/^from py_socket.cells import VersionsPayload, pack_versions_payload, unpack_versions_payload$/;"	kind:namespace	line:2
+port	../tor_py_server/__main__.py	/^port = int(port) if port != None else 5678$/;"	kind:variable	line:15
+port	../tor_py_server/__main__.py	/^port = os.getenv("PORT")$/;"	kind:variable	line:14
+process_created2	../py_socket/clients/tor_client.py	/^    def process_created2(self, handshake_data: NtorHandshakeData, created2_payload: Created2Payload, node: Node):$/;"	kind:member	line:160
+protocol	../py_socket/cells/cell_type.py	/^    protocol = 1$/;"	kind:variable	line:19
+random	../tor_py_server/__main__.py	/^import random$/;"	kind:namespace	line:3
+receive_data	../py_socket/clients/tor_client.py	/^    def receive_data(self):$/;"	kind:member	line:226
+receive_relay_connected	../py_socket/clients/tor_client.py	/^    def receive_relay_connected(self):$/;"	kind:member	line:214
+recv_auth_challenge	../py_socket/clients/tor_client.py	/^    def recv_auth_challenge(self):$/;"	kind:member	line:105
+recv_cell	../py_socket/clients/tor_client.py	/^    def recv_cell(self, node: Node, max_size):$/;"	kind:member	line:139
+recv_certs	../py_socket/clients/tor_client.py	/^    def recv_certs(self):$/;"	kind:member	line:98
+recv_net_info	../py_socket/clients/tor_client.py	/^    def recv_net_info(self):$/;"	kind:member	line:109
+recv_relay_resolved	../py_socket/clients/tor_client.py	/^    def recv_relay_resolved(self):$/;"	kind:member	line:269
+recv_versions	../py_socket/clients/tor_client.py	/^    def recv_versions(self):$/;"	kind:member	line:83
+relay	../py_socket/cells/cell_type.py	/^    relay = 3$/;"	kind:variable	line:5
+relay_early	../py_socket/cells/cell_type.py	/^    relay_early = 9$/;"	kind:variable	line:9
+relay_payload.py	../py_socket/cells/payloads/relay_payload.py	1;"	kind:file	line:1
+relay_type.py	../py_socket/cells/relay_type.py	1;"	kind:file	line:1
+requested	../py_socket/cells/cell_type.py	/^    requested = 3$/;"	kind:variable	line:23
+res	../main.py	/^res = tor_client.receive_data()$/;"	kind:variable	line:36
+resourcelimit	../py_socket/cells/cell_type.py	/^    resourcelimit = 5$/;"	kind:variable	line:27
+router_service.py	../py_socket/clients/router_service.py	1;"	kind:file	line:1
+scalarmult	../py_socket/clients/tor_client.py	/^from py_socket.crypto.curve25519 import scalarmult, scalarmult_base$/;"	kind:namespace	line:17
+scalarmult	../py_socket/crypto/curve25519.py	/^def scalarmult(n, p):$/;"	kind:function	line:116
+scalarmult_base	../py_socket/clients/tor_client.py	/^from py_socket.crypto.curve25519 import scalarmult, scalarmult_base$/;"	kind:namespace	line:17
+scalarmult_base	../py_socket/crypto/curve25519.py	/^def scalarmult_base(n):$/;"	kind:function	line:129
+secrets	../py_socket/clients/tor_client.py	/^import secrets$/;"	kind:namespace	line:16
+secrets	../tor_py_server/socket_wrapper.py	/^import secrets$/;"	kind:namespace	line:2
+send_cell	../py_socket/clients/tor_client.py	/^    def send_cell(self, cell) -> bytes:$/;"	kind:member	line:63
+send_message	../tor_py_server/socket_wrapper.py	/^    async def send_message(self, title: str, data: str):$/;"	kind:member	line:11
+send_relay_begin	../py_socket/clients/tor_client.py	/^    def send_relay_begin(self, addr_port):$/;"	kind:member	line:280
+send_relay_data	../py_socket/clients/tor_client.py	/^    def send_relay_data(self, relay_data):$/;"	kind:member	line:309
+send_relay_resolve	../py_socket/clients/tor_client.py	/^    def send_relay_resolve(self, hostname):$/;"	kind:member	line:261
+serialize	../py_socket/cells/cell.py	/^    def serialize(self):$/;"	kind:member	line:24
+serialize	../py_socket/cells/payloads/created2_payload.py	/^    def serialize(self):$/;"	kind:member	line:17
+serialize	../py_socket/cells/payloads/ntor_handshake_data.py	/^    def serialize(self):$/;"	kind:member	line:16
+serialize	../py_socket/cells/payloads/versions_payload.py	/^    def serialize(self) -> dict:$/;"	kind:member	line:15
+serialize	../py_socket/cells/variable_cell.py	/^    def serialize(self) -> dict:$/;"	kind:member	line:26
+socket	../py_socket/clients/http_client.py	/^import socket$/;"	kind:namespace	line:1
+socket_info.py	../py_socket/sockets/socket_info.py	1;"	kind:file	line:1
+socket_lib	../py_socket/sockets/socket_info.py	/^import socket as socket_lib$/;"	kind:namespace	line:1
+socket_wrapper.py	../tor_py_server/socket_wrapper.py	1;"	kind:file	line:1
+ssl	../py_socket/clients/http_client.py	/^import ssl$/;"	kind:namespace	line:2
+ssl	../py_socket/sockets/socket_info.py	/^import ssl$/;"	kind:namespace	line:2
+start	../tor_py_server/tor_socket_client.py	/^    async def start(self):$/;"	kind:member	line:12
+start_server	../tor_py_server/__main__.py	/^start_server = websockets.serve(handler, "0.0.0.0", port)$/;"	kind:variable	line:51
+sys	../py_socket/crypto/curve25519.py	/^import sys$/;"	kind:namespace	line:3
+test_http	../tests/tools/url_helper_tests.py	/^    def test_http(self):$/;"	kind:member	line:6
+test_http_slash	../tests/tools/url_helper_tests.py	/^    def test_http_slash(self):$/;"	kind:member	line:14
+test_https	../tests/tools/url_helper_tests.py	/^    def test_https(self):$/;"	kind:member	line:22
+test_no_protocol	../tests/tools/url_helper_tests.py	/^    def test_no_protocol(self):$/;"	kind:member	line:30
+test_pack	../tests/variable_cell/tests.py	/^    def test_pack(self):$/;"	kind:member	line:6
+test_pack	../tests/versions_payload/tests.py	/^    def test_pack(self):$/;"	kind:member	line:5
+test_path	../tests/tools/url_helper_tests.py	/^    def test_path(self):$/;"	kind:member	line:38
+test_unpack	../tests/cells_payload/tests.py	/^    def test_unpack(self):$/;"	kind:member	line:6
+test_unpack	../tests/net_info_payload/tests.py	/^    def test_unpack(self):$/;"	kind:member	line:6
+test_unpack	../tests/variable_cell/tests.py	/^    def test_unpack(self):$/;"	kind:member	line:14
+test_unpack	../tests/versions_payload/tests.py	/^    def test_unpack(self):$/;"	kind:member	line:12
+tests.py	../tests/cells_payload/tests.py	1;"	kind:file	line:1
+tests.py	../tests/net_info_payload/tests.py	1;"	kind:file	line:1
+tests.py	../tests/variable_cell/tests.py	1;"	kind:file	line:1
+tests.py	../tests/versions_payload/tests.py	1;"	kind:file	line:1
+time	../py_socket/clients/tor_client.py	/^from time import time$/;"	kind:namespace	line:1
+timeout	../py_socket/cells/cell_type.py	/^    timeout = 10$/;"	kind:variable	line:37
+to_json	../py_socket/clients/node.py	/^    def to_json(self) -> str:$/;"	kind:member	line:59
+tor_client	../main.py	/^tor_client = TorClient(guard_node, exit_node)$/;"	kind:variable	line:20
+tor_client.py	../py_socket/clients/tor_client.py	1;"	kind:file	line:1
+tor_socket_client.py	../tor_py_server/tor_socket_client.py	1;"	kind:file	line:1
+unpack	../py_socket/cells/cell.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/payloads/certs_payload.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/payloads/created2_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/payloads/net_info_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/payloads/relay_payload.py	/^from struct import pack, unpack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/payloads/versions_payload.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+unpack	../py_socket/cells/variable_cell.py	/^from struct import unpack, pack$/;"	kind:namespace	line:1
+unpack	../py_socket/crypto/curve25519.py	/^def unpack(s):$/;"	kind:function	line:88
+unpack_cell	../py_socket/cells/__init__.py	/^from py_socket.cells.cell import Cell, pack_cell, unpack_cell$/;"	kind:namespace	line:4
+unpack_cell	../py_socket/cells/cell.py	/^def unpack_cell(buffer: bytes) -> (Cell, int):$/;"	kind:function	line:34
+unpack_certs_payload	../py_socket/cells/payloads/certs_payload.py	/^def unpack_certs_payload(buffer: bytes) -> CertsPayload:$/;"	kind:function	line:26
+unpack_certs_payload	../tests/cells_payload/tests.py	/^from py_socket.cells import CertsPayload, unpack_certs_payload$/;"	kind:namespace	line:2
+unpack_created2_payload	../py_socket/cells/payloads/created2_payload.py	/^def unpack_created2_payload(buffer: bytes) -> Created2Payload:$/;"	kind:function	line:24
+unpack_created2_payload	../tor_py_server/tor_socket_client.py	/^from py_socket.clients.tor_client import TorClient, unpack_created2_payload, get_url_info$/;"	kind:namespace	line:1
+unpack_net_info_payload	../py_socket/cells/payloads/net_info_payload.py	/^def unpack_net_info_payload(buffer: bytes) -> NetInfoPayload:$/;"	kind:function	line:39
+unpack_net_info_payload	../tests/net_info_payload/tests.py	/^from py_socket.cells import NetInfoPayload, unpack_net_info_payload$/;"	kind:namespace	line:2
+unpack_relay_payload	../py_socket/cells/payloads/relay_payload.py	/^def unpack_relay_payload(buffer: bytes) -> RelayPayload:$/;"	kind:function	line:36
+unpack_variable_cell	../py_socket/cells/variable_cell.py	/^def unpack_variable_cell(buffer: bytes) -> (VariableCell, int):$/;"	kind:function	line:36
+unpack_variable_cell	../tests/variable_cell/tests.py	/^from py_socket.cells import CellType, VariableCell, pack_variable_cell, unpack_variable_cell$/;"	kind:namespace	line:2
+unpack_versions_payload	../py_socket/cells/payloads/versions_payload.py	/^def unpack_versions_payload(buffer: bytes) -> VersionsPayload:$/;"	kind:function	line:21
+unpack_versions_payload	../tests/versions_payload/tests.py	/^from py_socket.cells import VersionsPayload, pack_versions_payload, unpack_versions_payload$/;"	kind:namespace	line:2
+update_digest_backward	../py_socket/clients/node.py	/^    def update_digest_backward(self, data: bytes):$/;"	kind:member	line:37
+update_digest_forward	../py_socket/clients/node.py	/^    def update_digest_forward(self, data: bytes):$/;"	kind:member	line:31
+url_helper.py	../py_socket/tools/url_helper.py	1;"	kind:file	line:1
+url_helper_tests.py	../tests/tools/url_helper_tests.py	1;"	kind:file	line:1
+url_info	../main.py	/^url_info = get_url_info(http_url)$/;"	kind:variable	line:24
+uuid	../tor_py_server/__main__.py	/^import uuid$/;"	kind:namespace	line:6
+variable_cell.py	../py_socket/cells/variable_cell.py	1;"	kind:file	line:1
+versions	../py_socket/cells/cell_type.py	/^    versions = 7$/;"	kind:variable	line:7
+versions_payload.py	../py_socket/cells/payloads/versions_payload.py	1;"	kind:file	line:1
+websockets	../tor_py_server/__main__.py	/^import websockets$/;"	kind:namespace	line:4
+websockets	../tor_py_server/socket_wrapper.py	/^import websockets$/;"	kind:namespace	line:1
+wrap_tls_socket	../main.py	/^from py_socket.sockets import create_tls_socket, wrap_tls_socket$/;"	kind:namespace	line:6
+wrap_tls_socket	../py_socket/clients/http_client.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:3
+wrap_tls_socket	../py_socket/clients/http_generator.py	/^from py_socket.sockets.socket_info import SocketInfo, _get_host_and_port, wrap_tls_socket, create_tls_socket$/;"	kind:namespace	line:1
+wrap_tls_socket	../py_socket/sockets/__init__.py	/^from py_socket.sockets.socket_info import SocketInfo, create_tls_socket, wrap_tls_socket/;"	kind:namespace	line:1
+wrap_tls_socket	../py_socket/sockets/socket_info.py	/^def wrap_tls_socket(socket, host):$/;"	kind:function	line:25
+xrange	../py_socket/crypto/curve25519.py	/^    xrange = range$/;"	kind:variable	line:5

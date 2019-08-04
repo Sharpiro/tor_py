@@ -59,29 +59,36 @@ class TorSocketClient:
         }
         await self.socket_wrapper.send_message("sendExtend2", extend2_data)
 
-        # # extended2
-        # extended2_cell = self.tor_client.recv_cell(self.tor_client.guard_node, TorClient.CELL_SIZE)
-        # created2_payload = unpack_created2_payload(extended2_cell.payload[11:])
-        # self.tor_client.process_created2(extend_handshake_data, created2_payload, self.tor_client.exit_node)
-        # extended2_data = {
-        #     "cell": extended2_cell.serialize(),
-        #     "payload": created2_payload.serialize()
-        # }
-        # await self.socket_wrapper.send_message("recvExtended2", extended2_data)
+        # extended2
+        extended2_cell = self.tor_client.recv_cell(self.tor_client.guard_node, TorClient.CELL_SIZE)
+        created2_payload = unpack_created2_payload(extended2_cell.payload[11:])
+        self.tor_client.process_created2(extend_handshake_data, created2_payload, self.tor_client.exit_node)
+        extended2_data = {
+            "cell": extended2_cell.serialize(),
+            "payload": created2_payload.serialize()
+        }
+        await self.socket_wrapper.send_message("recvExtended2", extended2_data)
 
-        # # send http request
-        # http_url = "http://torpy.blob.core.windows.net/tor-blobs/tor.txt"
-        # url_info = get_url_info(http_url)
-        # await self.socket_wrapper.websocket.send(f"Sending request to {http_url}")
+        # send http request
+        http_url = "http://torpy.blob.core.windows.net/tor-blobs/tor.txt"
+        url_info = get_url_info(http_url)
 
-        # self.tor_client.send_relay_resolve(url_info.hostname)
-        # await self.socket_wrapper.websocket.send("Sent relay resolve cell")
+        relay_resolve_cell = self.tor_client.create_relay_resolve(url_info.hostname)
+        self.tor_client.send_cell(relay_resolve_cell)
+        relay_resolve_data = {
+            "cell": relay_resolve_cell.serialize(),
+            "hostname": url_info.hostname
+        }
+        await self.socket_wrapper.send_message("sendRelayResolve", relay_resolve_data)
+
         # ip_address_bytes = self.tor_client.recv_relay_resolved()
         # ip_address = ".".join(str(x) for x in ip_address_bytes)
         # addr_port = bytes(f"{ip_address}:{url_info.port}\x00", "utf8")
         # await self.socket_wrapper.websocket.send("Received relay resolved cell")
+
         # self.tor_client.send_relay_begin(addr_port)
         # await self.socket_wrapper.websocket.send("Sent relay begin cell")
+
         # self.tor_client.receive_relay_connected()
         # await self.socket_wrapper.websocket.send("Received relay connected cell")
 
@@ -89,6 +96,7 @@ class TorSocketClient:
         # get_request = http_generator.create_get_request(url_info.path)
         # self.tor_client.send_relay_data(get_request)
         # await self.socket_wrapper.websocket.send("Sent relay data cell")
+
         # res = self.tor_client.receive_data()
         # await self.socket_wrapper.websocket.send("Received relay data cell")
         # await self.socket_wrapper.websocket.send(res.decode())

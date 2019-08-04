@@ -67,6 +67,8 @@ class TorClient:
             cell_buffer = pack_cell(cell)
         elif cell.command == CellType.relay_early:
             cell_buffer = pack_cell(cell)
+        elif cell.command == CellType.relay:
+            cell_buffer = pack_cell(cell)
         else:
             raise Exception("invalid cell type")
         self.guard_node.socket.socket.send(cell_buffer)
@@ -258,13 +260,14 @@ class TorClient:
         actual_digest = node.get_digest_backward()[:4]
         assert expected_digest == actual_digest
 
-    def send_relay_resolve(self, hostname):
+    def create_relay_resolve(self, hostname):
         hostname_bytes = bytes(hostname, "utf8") + b'\x00'
-
         cell = self.get_encrypted_relay_cell(RelayType.RELAY_RESOLVE, hostname_bytes)
-        cell_buffer = pack_cell(cell)
+        return cell
+        # cell_buffer = pack_cell(cell)
 
-        self.guard_node.socket.socket.send(cell_buffer)
+    # def send_relay_resolve(self, hostname):
+    #     self.guard_node.socket.socket.send(cell_buffer)
 
     def recv_relay_resolved(self):
         debug_res = self.guard_node.socket.socket.recv(TorClient.MAX_BUFFER_SIZE)

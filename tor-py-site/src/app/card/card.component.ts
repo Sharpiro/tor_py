@@ -7,7 +7,7 @@ export interface CommandComponent {
 }
 
 export class TorComponent {
-  constructor(public component: Type<any>, public message: Message) { }
+  constructor(public component: Type<any>, public title: string, public message: Message) { }
 }
 
 @Component({
@@ -37,12 +37,34 @@ export class TorComponentDirective {
 export class CardComponent implements OnInit {
   @ViewChild(TorComponentDirective, { static: true }) torComponentHost: TorComponentDirective;
   @Input() torComponent: TorComponent;
-  private showRawPayload = false
+  showRawPayload = false
+  title: string
+  isVisible = false;
 
   constructor(private componentFactoryResolver: ComponentFactoryResolver) { }
 
   ngOnInit() {
-    this.loadChild()
+    this.title = this.torComponent.title
+    // this.loadChild()
+    // setTimeout(() => {
+    //   this.clearChild()
+    // }, 2000);
+    // setTimeout(() => {
+    //   this.loadChild()
+    // }, 5000);
+  }
+
+  toggleVisibility() {
+    if (!this.isVisible) {
+      this.loadChild()
+    } else {
+      this.clearChild()
+    }
+    this.isVisible = !this.isVisible
+    // console.log(this.isVisible)
+    // setTimeout(() => {
+    //   this.loadChild()
+    // }, 5000);
   }
 
   toggleRawPayload() {
@@ -50,14 +72,18 @@ export class CardComponent implements OnInit {
   }
 
   loadChild() {
-    const torComponent = this.torComponent;
-
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(torComponent.component);
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.torComponent.component);
 
     const viewContainerRef = this.torComponentHost.viewContainerRef;
     viewContainerRef.clear();
 
     const componentRef = viewContainerRef.createComponent(componentFactory);
-    (componentRef.instance as CommandComponent).data = torComponent.message.data;
+    (componentRef.instance as CommandComponent).data = this.torComponent.message.data;
+  }
+
+
+  clearChild() {
+    const viewContainerRef = this.torComponentHost.viewContainerRef;
+    viewContainerRef.clear();
   }
 }
