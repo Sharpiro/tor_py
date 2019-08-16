@@ -139,8 +139,8 @@ class TorClient:
         return ntor_handshake_data
 
     def recv_cell(self, node: Node, max_size):
-        node.buffer = node.socket.socket.recv(max_size)
-        cell_buffer = node.buffer
+        self.guard_node.buffer = self.guard_node.socket.socket.recv(max_size)
+        cell_buffer = self.guard_node.buffer
         cell_type = CellType(cell_buffer[TorClient.CIRCUIT_ID_SIZE])
         cell_payload = cell_buffer[TorClient.CIRCUIT_ID_SIZE + 1:]
         if cell_type == CellType.destroy:
@@ -148,14 +148,15 @@ class TorClient:
         elif cell_type == CellType.created2:
             pass
         elif cell_type == CellType.relay:
-            decrypted_payload = node.decrypt_backward(cell_payload)
+            # decrypted_payload = node.decrypt_backward(cell_payload)
+            decrypted_payload = self.get_decrypted_payload(cell_payload)
             self._verify_digest(node, decrypted_payload, "backward")
             cell_buffer = cell_buffer[:3] + decrypted_payload
         else:
             raise Exception(f"Received unexpected cell type '{cell_type}'")
 
         cell, bytes_consumed = unpack_cell(cell_buffer)
-        node.buffer = node.buffer[bytes_consumed:]
+        self.guard_node.buffer = self.guard_node.buffer[bytes_consumed:]
 
         return cell
 
@@ -307,6 +308,9 @@ class TorClient:
         decrypted_payload_buffer = encrypted_payload_buffer
         for node in self.nodes:
             decrypted_payload_buffer = node.decrypt_backward(decrypted_payload_buffer)
+            if decrypted_payload_buffer[1] == 0 and decrypted_payload_buffer[2] == 0:
+                break
+            # should verify here
         return decrypted_payload_buffer
 
     def send_relay_data(self, relay_data):

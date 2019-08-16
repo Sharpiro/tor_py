@@ -7,6 +7,7 @@ import { Create2Component } from './create2/create2.component';
 import { Created2Component } from './created2/created2.component';
 import { Extend2Component } from './extend2/extend2.component';
 import { Extended2Component } from './extended2/extended2.component';
+import { RelayResolveComponent } from './relay-resolve/relay-resolve.component';
 
 @Component({
   selector: 'app-root',
@@ -41,6 +42,10 @@ export class AppComponent implements OnInit {
         case "recvExtended2":
           component = Extended2Component
           title = "Receive Extended2"
+          break;
+        case "sendRelayResolve":
+          component = RelayResolveComponent
+          title = "Send Relay Resolve"
           break;
         default:
           component = GenericComponent

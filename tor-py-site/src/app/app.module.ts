@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { SendVersionsComponent } from './send-versions/send-versions.component';
 import { Extend2Component } from './extend2/extend2.component';
 import { Extended2Component } from './extended2/extended2.component';
+import { RelayResolveComponent } from './relay-resolve/relay-resolve.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { Extended2Component } from './extended2/extended2.component';
     Create2Component,
     GenericComponent,
     Extend2Component,
-    Extended2Component
+    Extended2Component,
+    RelayResolveComponent
   ],
   entryComponents: [
     SendVersionsComponent,
@@ -29,7 +31,8 @@ import { Extended2Component } from './extended2/extended2.component';
     GenericComponent,
     Created2Component,
     Extend2Component,
-    Extended2Component
+    Extended2Component,
+    RelayResolveComponent
   ],
   imports: [
     BrowserModule,
