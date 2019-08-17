@@ -91,7 +91,7 @@ class TorSocketClient:
             "cell": relay_resolved_cell.serialize(),
             "ipAddress": ip_address
         }
-        await self.socket_wrapper.send_message("sendRelayResolved", relay_resolved_data)
+        await self.socket_wrapper.send_message("recvRelayResolved", relay_resolved_data)
 
         # self.tor_client.send_relay_begin(addr_port)
         # await self.socket_wrapper.websocket.send("Sent relay begin cell")

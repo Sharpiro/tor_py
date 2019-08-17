@@ -11,14 +11,10 @@ export class RelayResolveComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log(this.data)
   }
 }
 
 export interface RelayResolveData {
-  payload: RelayResolvePayload
-}
-
-export interface RelayResolvePayload {
+  cell: any
   hostname: string
 }
