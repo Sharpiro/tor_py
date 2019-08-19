@@ -1,5 +1,8 @@
-from py_socket.clients.tor_client import TorClient, unpack_created2_payload, get_url_info, unpack_relay_payload
+from py_socket import(
+    TorClient, unpack_created2_payload, get_url_info, unpack_relay_payload,
+    RelayType, unpack_relay_connected_payload)
 from py_socket.clients.http_generator import HttpGenerator
+
 from tor_py_server.socket_wrapper import SocketWrapper
 import asyncio
 
@@ -84,26 +87,51 @@ class TorSocketClient:
         relay_resolved_cell = self.tor_client.recv_cell(self.tor_client.exit_node, TorClient.CELL_SIZE)
         relay_payload = unpack_relay_payload(relay_resolved_cell.payload)
         ip_address_bytes = relay_payload.data[2:6]
-        # ip_address_bytes = self.tor_client.recv_relay_resolved()
         ip_address = ".".join(str(x) for x in ip_address_bytes)
-        # addr_port = bytes(f"{ip_address}:{url_info.port}\x00", "utf8")
         relay_resolved_data = {
             "cell": relay_resolved_cell.serialize(),
             "ipAddress": ip_address
         }
         await self.socket_wrapper.send_message("recvRelayResolved", relay_resolved_data)
 
+        addr_port = bytes(f"{ip_address}:{url_info.port}\x00", "utf8")
+        relay_begin_cell = self.tor_client.get_encrypted_relay_cell(RelayType.RELAY_BEGIN, addr_port)
         # self.tor_client.send_relay_begin(addr_port)
-        # await self.socket_wrapper.websocket.send("Sent relay begin cell")
+        self.tor_client.send_cell(relay_begin_cell)
+        relay_begin_data = {
+            "cell": relay_begin_cell.serialize(),
+            "addrPort": str(addr_port, "utf8")[:-1]
+        }
+        await self.socket_wrapper.send_message("sendRelayBegin", relay_begin_data)
 
-        # self.tor_client.receive_relay_connected()
-        # await self.socket_wrapper.websocket.send("Received relay connected cell")
+        relay_connected_cell = self.tor_client.recv_cell(self.tor_client.exit_node, TorClient.CELL_SIZE)
+        relay_payload = unpack_relay_payload(relay_connected_cell.payload)
+        relay_connected_payload = unpack_relay_connected_payload(relay_payload.data[:relay_payload.length])
+        relay_connected_data = {
+            "cell": relay_connected_cell.serialize(),
+            "payload": {
+                "ipAddress": relay_connected_payload.ip_address,
+                "ttl": relay_connected_payload.ttl
+            }
+        }
+        await self.socket_wrapper.send_message("recvRelayConnected", relay_connected_data)
 
-        # http_generator = HttpGenerator(url_info.hostname)
-        # get_request = http_generator.create_get_request(url_info.path)
-        # self.tor_client.send_relay_data(get_request)
-        # await self.socket_wrapper.websocket.send("Sent relay data cell")
+        http_generator = HttpGenerator(url_info.hostname)
+        get_request = http_generator.create_get_request(url_info.path)
+        relay_cell = self.tor_client.create_relay_cell(get_request)
+        self.tor_client.send_cell(relay_cell)
+        relay_data = {
+            "cell": relay_cell.serialize(),
+            "payload": str(get_request, "utf8")
+        }
+        await self.socket_wrapper.send_message("sendRelayData", relay_data)
 
-        # res = self.tor_client.receive_data()
-        # await self.socket_wrapper.websocket.send("Received relay data cell")
-        # await self.socket_wrapper.websocket.send(res.decode())
+        recv_relay_data_cell = self.tor_client.recv_cell(self.tor_client.exit_node, TorClient.CELL_SIZE)
+        relay_payload = unpack_relay_payload(recv_relay_data_cell.payload)
+        relay_data = {
+            "cell": recv_relay_data_cell.serialize(),
+            "payload": str(relay_payload.data[:relay_payload.length], "utf8")
+        }
+        await self.socket_wrapper.send_message("recvRelayData", relay_data)
+
+        # todo: add relay end

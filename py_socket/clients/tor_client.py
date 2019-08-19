@@ -148,7 +148,6 @@ class TorClient:
         elif cell_type == CellType.created2:
             pass
         elif cell_type == CellType.relay:
-            # decrypted_payload = node.decrypt_backward(cell_payload)
             decrypted_payload = self.get_decrypted_payload(cell_payload)
             self._verify_digest(node, decrypted_payload, "backward")
             cell_buffer = cell_buffer[:3] + decrypted_payload
@@ -310,10 +309,10 @@ class TorClient:
             decrypted_payload_buffer = node.decrypt_backward(decrypted_payload_buffer)
             if decrypted_payload_buffer[1] == 0 and decrypted_payload_buffer[2] == 0:
                 break
-            # should verify here
+            # todo: verify here to detect rare false positives
         return decrypted_payload_buffer
 
-    def send_relay_data(self, relay_data):
+    def create_relay_cell(self, relay_data):
         relay_payload = RelayPayload(RelayType.RELAY_DATA, stream_id=self.stream_id, relay_data=relay_data)
         relay_payload_buffer = pack_relay_payload(relay_payload)
         self.exit_node.update_digest_forward(relay_payload_buffer)
@@ -322,9 +321,7 @@ class TorClient:
 
         encrypted_payload = self.get_encrypted_payload(relay_payload_buffer)
         cell = Cell(self.circuit_id, CellType.relay, encrypted_payload)
-        cell_buffer = pack_cell(cell)
-
-        self.guard_node.socket.socket.send(cell_buffer)
+        return cell
 
     def _compute_keys(self, key_seed):
         N = 72

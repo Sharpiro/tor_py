@@ -9,6 +9,9 @@ import { Extend2Component } from './extend2/extend2.component';
 import { Extended2Component } from './extended2/extended2.component';
 import { RelayResolveComponent } from './relay-resolve/relay-resolve.component';
 import { RelayResolvedComponent } from './relay-resolved/relay-resolved.component';
+import { RelayBeginComponent } from './relay-begin/relay-begin.component';
+import { RelayConnectedComponent } from './relay-connected/relay-connected.component';
+import { RelayDataComponent } from './relay-data/relay-data.component';
 
 @Component({
   selector: 'app-root',
@@ -51,6 +54,22 @@ export class AppComponent implements OnInit {
         case "recvRelayResolved":
           component = RelayResolvedComponent
           title = "Receive Relay Resolved"
+          break;
+        case "sendRelayBegin":
+          component = RelayBeginComponent
+          title = "Send Relay Begin"
+          break;
+        case "recvRelayConnected":
+          component = RelayConnectedComponent
+          title = "Receive Relay Connected"
+          break;
+        case "sendRelayData":
+          component = RelayDataComponent
+          title = "Send Relay Data"
+          break;
+        case "recvRelayData":
+          component = RelayDataComponent
+          title = "Receive Relay Data"
           break;
         default:
           component = GenericComponent

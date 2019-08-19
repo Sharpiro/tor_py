@@ -32,6 +32,6 @@ tor_client.receive_relay_connected()
 
 http_generator = HttpGenerator(url_info.hostname)
 get_request = http_generator.create_get_request(url_info.path)
-tor_client.send_relay_data(get_request)
+tor_client.create_relay_cell(get_request)
 res = tor_client.receive_data()
 print(res)

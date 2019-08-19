@@ -14,7 +14,7 @@ export class RelayResolvedComponent implements OnInit {
   }
 }
 
-export interface RelayResolvedData {
+interface RelayResolvedData {
   cell: any
   ipAddress: string
 }

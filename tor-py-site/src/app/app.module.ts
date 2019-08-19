@@ -12,6 +12,9 @@ import { Extend2Component } from './extend2/extend2.component';
 import { Extended2Component } from './extended2/extended2.component';
 import { RelayResolveComponent } from './relay-resolve/relay-resolve.component';
 import { RelayResolvedComponent } from './relay-resolved/relay-resolved.component';
+import { RelayBeginComponent } from './relay-begin/relay-begin.component';
+import { RelayConnectedComponent } from './relay-connected/relay-connected.component';
+import { RelayDataComponent } from './relay-data/relay-data.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +28,10 @@ import { RelayResolvedComponent } from './relay-resolved/relay-resolved.componen
     Extend2Component,
     Extended2Component,
     RelayResolveComponent,
-    RelayResolvedComponent
+    RelayResolvedComponent,
+    RelayBeginComponent,
+    RelayConnectedComponent,
+    RelayDataComponent
   ],
   entryComponents: [
     SendVersionsComponent,
@@ -35,7 +41,10 @@ import { RelayResolvedComponent } from './relay-resolved/relay-resolved.componen
     Extend2Component,
     Extended2Component,
     RelayResolveComponent,
-    RelayResolvedComponent
+    RelayResolvedComponent,
+    RelayBeginComponent,
+    RelayConnectedComponent,
+    RelayDataComponent
   ],
   imports: [
     BrowserModule,

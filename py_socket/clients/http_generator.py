@@ -7,5 +7,5 @@ class HttpGenerator():
         self.host = host
 
     def create_get_request(self, path: str):
-        request = bytearray(f"GET {path} HTTP/1.1\r\nHost: {self.host}\r\nAccept: */*\r\n\r\n", "utf8")
+        request = bytes(f"GET {path} HTTP/1.1\r\nHost: {self.host}\r\nAccept: */*\r\n\r\n", "utf8")
         return request
